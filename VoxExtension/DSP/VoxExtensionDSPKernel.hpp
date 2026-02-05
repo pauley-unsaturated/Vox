@@ -318,6 +318,10 @@ public:
             auto thisObject = static_cast<VoxExtensionDSPKernel *>(context);
             
             switch (message.type) {
+                case kMIDIMessageTypeChannelVoice1: {
+                    thisObject->handleMIDI1VoiceMessage(message);
+                    break;
+                }
                 case kMIDIMessageTypeChannelVoice2: {
                     thisObject->handleMIDI2VoiceMessage(message);
                     break;
@@ -330,6 +334,46 @@ public:
         MIDIEventListForEachEvent(&midiEvent->eventList, visitor, this);
     }
     
+    // MIDI 1.0 handler
+    void handleMIDI1VoiceMessage(const struct MIDIUniversalMessage& message) {
+        const auto status = message.channelVoice1.status;
+        const auto note = message.channelVoice1.note.number;
+        const auto velocity = message.channelVoice1.note.velocity;
+        
+        switch (status) {
+            case kMIDICVStatusNoteOff: {
+                if (mVoice) {
+                    mVoice->noteOff(note);
+                }
+                break;
+            }
+            case kMIDICVStatusNoteOn: {
+                if (mVoice) {
+                    if (velocity == 0) {
+                        // Note on with velocity 0 = note off
+                        mVoice->noteOff(note);
+                    } else {
+                        const double normalizedVelocity = (double)velocity / 127.0;
+                        mVoice->noteOn(note, normalizedVelocity);
+                    }
+                }
+                break;
+            }
+            case kMIDICVStatusPitchBend: {
+                if (mVoice) {
+                    // MIDI 1.0 pitch bend is 14-bit packed in UInt16
+                    const double normalizedBend = ((double)message.channelVoice1.pitchBend / 16383.0) * 2.0 - 1.0;
+                    const double semitones = normalizedBend * mPitchBendRange;
+                    mVoice->setPitchBend(semitones);
+                }
+                break;
+            }
+            default:
+                break;
+        }
+    }
+    
+    // MIDI 2.0 handler
     void handleMIDI2VoiceMessage(const struct MIDIUniversalMessage& message) {
         const auto& note = message.channelVoice2.note;
         
