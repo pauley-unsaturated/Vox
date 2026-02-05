@@ -61,6 +61,18 @@ struct VoxVoiceParameters {
     double modDecay = 0.1;           // seconds
     double modSustain = 0.5;         // 0.0 to 1.0
     double modRelease = 0.3;         // seconds
+    
+    // Modulation Routing - LFO Destinations (Phase 2.3)
+    double lfoToPitch = 0.0;         // semitones (bipolar: ±amount)
+    double lfoToFormant1 = 0.0;      // Hz (bipolar: ±amount)
+    double lfoToFormant2 = 0.0;      // Hz (bipolar: ±amount)
+    double lfoToDutyCycle = 0.0;     // normalized 0-1 (bipolar: ±amount)
+    
+    // Modulation Routing - Mod Envelope Destinations (Phase 2.3)
+    double modEnvToPitch = 0.0;      // semitones (unipolar: 0 to +amount)
+    double modEnvToFormant1 = 0.0;   // Hz (unipolar: 0 to +amount)
+    double modEnvToFormant2 = 0.0;   // Hz (unipolar: 0 to +amount)
+    double modEnvToDutyCycle = 0.0;  // normalized (unipolar: 0 to +amount)
 };
 
 class VoxVoice {
@@ -236,11 +248,9 @@ public:
         // Handle glide
         if (mParams.glideEnabled && std::abs(mCurrentFrequency - mTargetFrequency) > 0.1) {
             mCurrentFrequency += (mTargetFrequency - mCurrentFrequency) * mGlideCoeff;
-            mPulsarOsc.setFrequency(mCurrentFrequency);
         } else if (std::abs(mCurrentFrequency - mTargetFrequency) > 0.1) {
             // Not gliding but frequency mismatch (pitch bend change)
             mCurrentFrequency = mTargetFrequency;
-            mPulsarOsc.setFrequency(mCurrentFrequency);
         }
         
         // Update current note when glide completes
@@ -255,6 +265,44 @@ public:
         
         // Process mod envelope (Phase 2.2)
         mCurrentModEnvValue = mModEnvelope.process();
+        
+        // ═══════════════════════════════════════════════════════════════
+        // Phase 2.3: Apply Modulation Routing
+        // ═══════════════════════════════════════════════════════════════
+        
+        // Calculate pitch modulation (in semitones)
+        // LFO is bipolar (-1 to +1), mod env is unipolar (0 to 1)
+        double pitchModSemitones = (mCurrentLFOValue * mParams.lfoToPitch) + 
+                                   (mCurrentModEnvValue * mParams.modEnvToPitch);
+        
+        // Apply pitch modulation to frequency
+        double modulatedFrequency = mCurrentFrequency;
+        if (std::abs(pitchModSemitones) > 0.001) {
+            modulatedFrequency *= std::pow(2.0, pitchModSemitones / 12.0);
+        }
+        mPulsarOsc.setFrequency(modulatedFrequency);
+        
+        // Calculate duty cycle modulation
+        double dutyMod = (mCurrentLFOValue * mParams.lfoToDutyCycle) +
+                         (mCurrentModEnvValue * mParams.modEnvToDutyCycle);
+        double modulatedDuty = std::max(0.01, std::min(1.0, mParams.dutyCycle + dutyMod));
+        mPulsarOsc.setDutyCycle(modulatedDuty);
+        
+        // Calculate formant modulation
+        double formant1Mod = (mCurrentLFOValue * mParams.lfoToFormant1) +
+                             (mCurrentModEnvValue * mParams.modEnvToFormant1);
+        double formant2Mod = (mCurrentLFOValue * mParams.lfoToFormant2) +
+                             (mCurrentModEnvValue * mParams.modEnvToFormant2);
+        
+        // Apply formant modulation (only if using manual formants, not vowel morph)
+        if (!mParams.useVowelMorph) {
+            double modulatedF1 = std::max(80.0, std::min(4000.0, mParams.formant1Freq + formant1Mod));
+            double modulatedF2 = std::max(200.0, std::min(6000.0, mParams.formant2Freq + formant2Mod));
+            mFormantFilter.setFormant1Frequency(modulatedF1);
+            mFormantFilter.setFormant2Frequency(modulatedF2);
+        }
+        
+        // ═══════════════════════════════════════════════════════════════
         
         // Generate pulsar signal
         double signal = mPulsarOsc.process();
