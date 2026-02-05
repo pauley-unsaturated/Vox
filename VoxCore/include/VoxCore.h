@@ -51,6 +51,9 @@
 #include "FormantSequencer.h"
 #include "GlobalModulation.h"
 
+// Phase 5: Stochastic Cloud Engine
+#include "StochasticDistributions.h"
+
 // Utility functions
 #include "DSPUtilities.h"
 
