@@ -178,6 +178,14 @@ public:
         }
     }
     
+    // Set polyphonic aftertouch for a specific note (Phase 2.5)
+    void setPolyAftertouch(int32_t note, double pressure) {
+        int voiceIndex = mAllocator.findVoicePlayingNote(note);
+        if (voiceIndex >= 0 && voiceIndex < mVoiceCount) {
+            mVoices[voiceIndex]->setAftertouch(pressure);
+        }
+    }
+    
     // Reset all voices immediately
     void reset() {
         for (int i = 0; i < mVoiceCount; ++i) {

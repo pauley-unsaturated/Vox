@@ -77,6 +77,12 @@ struct VoxVoiceParameters {
     // Velocity Sensitivity (Phase 2.4)
     double velocitySensitivity = 1.0;  // 0.0 = no effect, 1.0 = full velocity scaling
     double velocityToModEnv = 0.0;     // 0.0 = no effect, 1.0 = velocity fully scales mod env
+    
+    // Polyphonic Aftertouch Routing (Phase 2.5)
+    double aftertouchToPitch = 0.0;      // semitones at full pressure
+    double aftertouchToFormant1 = 0.0;   // Hz at full pressure
+    double aftertouchToFormant2 = 0.0;   // Hz at full pressure
+    double aftertouchToLFOAmount = 0.0;  // Additional LFO depth at full pressure
 };
 
 class VoxVoice {
@@ -212,6 +218,9 @@ public:
             mLFO.retrigger();
         }
         
+        // Reset aftertouch on new note (Phase 2.5)
+        mAftertouch = 0.0;
+        
         mNoteOn = true;
     }
     
@@ -289,10 +298,14 @@ public:
         double velocityModScale = (1.0 - mParams.velocityToModEnv) + (mRawVelocity * mParams.velocityToModEnv);
         double effectiveModEnv = mCurrentModEnvValue * velocityModScale;
         
+        // Calculate effective LFO amount with aftertouch scaling (Phase 2.5)
+        double effectiveLFOAmount = 1.0 + (mAftertouch * mParams.aftertouchToLFOAmount);
+        
         // Calculate pitch modulation (in semitones)
-        // LFO is bipolar (-1 to +1), mod env is unipolar (0 to 1)
-        double pitchModSemitones = (mCurrentLFOValue * mParams.lfoToPitch) + 
-                                   (effectiveModEnv * mParams.modEnvToPitch);
+        // LFO is bipolar (-1 to +1), mod env is unipolar (0 to 1), aftertouch is unipolar (0 to 1)
+        double pitchModSemitones = (mCurrentLFOValue * mParams.lfoToPitch * effectiveLFOAmount) + 
+                                   (effectiveModEnv * mParams.modEnvToPitch) +
+                                   (mAftertouch * mParams.aftertouchToPitch);  // Phase 2.5
         
         // Apply pitch modulation to frequency
         double modulatedFrequency = mCurrentFrequency;
@@ -302,16 +315,18 @@ public:
         mPulsarOsc.setFrequency(modulatedFrequency);
         
         // Calculate duty cycle modulation
-        double dutyMod = (mCurrentLFOValue * mParams.lfoToDutyCycle) +
+        double dutyMod = (mCurrentLFOValue * mParams.lfoToDutyCycle * effectiveLFOAmount) +
                          (effectiveModEnv * mParams.modEnvToDutyCycle);
         double modulatedDuty = std::max(0.01, std::min(1.0, mParams.dutyCycle + dutyMod));
         mPulsarOsc.setDutyCycle(modulatedDuty);
         
-        // Calculate formant modulation
-        double formant1Mod = (mCurrentLFOValue * mParams.lfoToFormant1) +
-                             (effectiveModEnv * mParams.modEnvToFormant1);
-        double formant2Mod = (mCurrentLFOValue * mParams.lfoToFormant2) +
-                             (effectiveModEnv * mParams.modEnvToFormant2);
+        // Calculate formant modulation (including aftertouch - Phase 2.5)
+        double formant1Mod = (mCurrentLFOValue * mParams.lfoToFormant1 * effectiveLFOAmount) +
+                             (effectiveModEnv * mParams.modEnvToFormant1) +
+                             (mAftertouch * mParams.aftertouchToFormant1);
+        double formant2Mod = (mCurrentLFOValue * mParams.lfoToFormant2 * effectiveLFOAmount) +
+                             (effectiveModEnv * mParams.modEnvToFormant2) +
+                             (mAftertouch * mParams.aftertouchToFormant2);
         
         // Apply formant modulation (only if using manual formants, not vowel morph)
         if (!mParams.useVowelMorph) {
@@ -386,6 +401,12 @@ public:
     ADSREnvelope& getModEnvelope() { return mModEnvelope; }
     const ADSREnvelope& getModEnvelope() const { return mModEnvelope; }
     
+    // Polyphonic aftertouch (Phase 2.5)
+    void setAftertouch(double pressure) {
+        mAftertouch = std::max(0.0, std::min(1.0, pressure));
+    }
+    double getAftertouch() const { return mAftertouch; }
+    
 private:
     double noteToFrequency(int noteNumber) const {
         // MIDI note to frequency: f = 440 * 2^((n-69)/12)
@@ -428,6 +449,7 @@ private:
     int mVoiceIndex;
     double mCurrentLFOValue = 0.0;
     double mCurrentModEnvValue = 0.0;  // Phase 2.2
+    double mAftertouch = 0.0;          // Phase 2.5
 };
 
 #endif // __cplusplus
