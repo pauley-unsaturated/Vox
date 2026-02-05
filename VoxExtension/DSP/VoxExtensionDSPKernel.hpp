@@ -64,10 +64,12 @@ public:
         VOX_LOG("initialize() called: channels=%d sampleRate=%f", channelCount, inSampleRate);
         mSampleRate = inSampleRate;
         
-        // Initialize VoxVoice
-        mVoice = std::make_unique<VoxVoice>(inSampleRate);
-        VOX_LOG("VoxVoice created successfully");
-        mVoice->setParameters(mStoredParameters);
+        // Initialize polyphonic voice pool (8 voices)
+        mVoicePool = std::make_unique<VoicePool>(8, inSampleRate);
+        VOX_LOG("VoicePool created with 8 voices");
+        mVoicePool->setParameters(mStoredParameters);
+        mVoicePool->setStealingEnabled(true);
+        mVoicePool->setStealingMode(VoicePool::StealingMode::Oldest);
         
         // Initialize output level metering
         mLevelDecayCoeff = std::exp(-1.0f / (static_cast<float>(mSampleRate) * 0.05f));
@@ -75,7 +77,7 @@ public:
     }
     
     void deInitialize() {
-        mVoice.reset();
+        mVoicePool.reset();
     }
     
     // MARK: - Bypass
@@ -162,9 +164,9 @@ public:
                 break;
         }
         
-        // Apply to voice if it exists
-        if (updateVoice && mVoice) {
-            mVoice->setParameters(mStoredParameters);
+        // Apply to voice pool if it exists
+        if (updateVoice && mVoicePool) {
+            mVoicePool->setParameters(mStoredParameters);
         }
     }
     
@@ -257,11 +259,12 @@ public:
             return;
         }
         
-        // Generate per sample DSP
+        // Generate per sample DSP from polyphonic voice pool
         for (UInt32 frameIndex = 0; frameIndex < frameCount; ++frameIndex) {
-            // Process the voice
-            const auto sample = static_cast<float>(mVoice->process());
+            // Process all active voices and sum
+            const auto sample = static_cast<float>(mVoicePool->process());
             
+            // Output to all channels (mono to stereo)
             for (UInt32 channel = 0; channel < outputBuffers.size(); ++channel) {
                 outputBuffers[channel][frameIndex] = sample;
             }
@@ -360,30 +363,30 @@ public:
         switch (status) {
             case kMIDICVStatusNoteOff: {
                 VOX_LOG("MIDI1 Note OFF: note=%d", note);
-                if (mVoice) {
-                    mVoice->noteOff(note);
+                if (mVoicePool) {
+                    mVoicePool->noteOff(note);
                 }
                 break;
             }
             case kMIDICVStatusNoteOn: {
                 VOX_LOG("MIDI1 Note ON: note=%d vel=%d", note, velocity);
-                if (mVoice) {
+                if (mVoicePool) {
                     if (velocity == 0) {
                         // Note on with velocity 0 = note off
-                        mVoice->noteOff(note);
+                        mVoicePool->noteOff(note);
                     } else {
                         const double normalizedVelocity = (double)velocity / 127.0;
-                        mVoice->noteOn(note, normalizedVelocity);
+                        mVoicePool->noteOn(note, normalizedVelocity);
                     }
                 }
                 break;
             }
             case kMIDICVStatusPitchBend: {
-                if (mVoice) {
+                if (mVoicePool) {
                     // MIDI 1.0 pitch bend is 14-bit packed in UInt16
                     const double normalizedBend = ((double)message.channelVoice1.pitchBend / 16383.0) * 2.0 - 1.0;
                     const double semitones = normalizedBend * mPitchBendRange;
-                    mVoice->setPitchBend(semitones);
+                    mVoicePool->setPitchBend(semitones);
                 }
                 break;
             }
@@ -399,26 +402,26 @@ public:
         switch (message.channelVoice2.status) {
             case kMIDICVStatusNoteOff: {
                 VOX_LOG("MIDI2 Note OFF: note=%d", note.number);
-                if (mVoice) {
-                    mVoice->noteOff(note.number);
+                if (mVoicePool) {
+                    mVoicePool->noteOff(note.number);
                 }
                 break;
             }
             case kMIDICVStatusNoteOn: {
                 const auto velocity = message.channelVoice2.note.velocity;
                 VOX_LOG("MIDI2 Note ON: note=%d vel=%u", note.number, velocity);
-                if (mVoice) {
+                if (mVoicePool) {
                     const double normalizedVelocity = (double)velocity / (double)std::numeric_limits<std::uint16_t>::max();
-                    mVoice->noteOn(note.number, normalizedVelocity);
+                    mVoicePool->noteOn(note.number, normalizedVelocity);
                 }
                 break;
             }
             case kMIDICVStatusPitchBend: {
-                if (mVoice) {
+                if (mVoicePool) {
                     // Convert MIDI 2.0 pitch bend to semitones
                     const double normalizedBend = ((double)message.channelVoice2.pitchBend.data / (double)0xFFFFFFFF) * 2.0 - 1.0;
                     const double semitones = normalizedBend * mPitchBendRange;
-                    mVoice->setPitchBend(semitones);
+                    mVoicePool->setPitchBend(semitones);
                 }
                 break;
             }
@@ -446,8 +449,8 @@ private:
     bool mBypassed = false;
     AUAudioFrameCount mMaxFramesToRender = 1024;
     
-    // Voice
-    std::unique_ptr<VoxVoice> mVoice;
+    // Polyphonic voice pool (8 voices)
+    std::unique_ptr<VoicePool> mVoicePool;
     VoxVoiceParameters mStoredParameters;
     std::unordered_map<AUParameterAddress, AUValue> mRawParameterValues;
     
