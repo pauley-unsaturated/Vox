@@ -44,6 +44,13 @@
 // Low frequency oscillator for modulation
 #include "LFO.h"
 
+// Phase 4: Global Modulation Sources
+#include "GlobalLFO.h"
+#include "DriftGenerator.h"
+#include "ChaosGenerator.h"
+#include "FormantSequencer.h"
+#include "GlobalModulation.h"
+
 // Utility functions
 #include "DSPUtilities.h"
 
