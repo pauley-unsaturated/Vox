@@ -27,6 +27,9 @@
 // Complete pulsar synthesis voice
 #include "VoxVoice.h"
 
+// Polyphonic voice management
+#include "VoiceAllocator.h"
+
 // ═══════════════════════════════════════════════════════════════════════════
 // SUPPORTING COMPONENTS
 // ═══════════════════════════════════════════════════════════════════════════
