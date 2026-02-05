@@ -55,6 +55,9 @@
 // StochasticDistribution.h is included by StochasticCloud.h
 #include "StochasticCloud.h"
 
+// Phase 6: Modulation Matrix
+#include "ModulationMatrix.h"
+
 // Utility functions
 #include "DSPUtilities.h"
 
