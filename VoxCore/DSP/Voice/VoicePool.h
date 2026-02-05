@@ -20,15 +20,24 @@ public:
     // Maximum voices supported
     static constexpr int kMaxVoices = VoiceAllocator::kMaxVoices;
     
+    // Voice stealing modes
+    enum class StealingMode {
+        Oldest,    // Steal the oldest active voice
+        Quietest   // Steal the voice with lowest velocity
+    };
+    
     // Constructor
     VoicePool(int voiceCount = 8, double sampleRate = 44100.0)
         : mVoiceCount(std::min(voiceCount, kMaxVoices))
         , mSampleRate(sampleRate)
         , mAllocator(voiceCount)
+        , mStealingEnabled(true)
+        , mStealingMode(StealingMode::Oldest)
     {
         // Initialize all voices
         for (int i = 0; i < kMaxVoices; ++i) {
             mVoices[i] = std::make_unique<VoxVoice>(sampleRate);
+            mVoiceVelocities[i] = 0.0;
         }
     }
     
@@ -86,19 +95,59 @@ public:
         return mAllocator.getAllocationMode();
     }
     
+    // Voice stealing control
+    void setStealingEnabled(bool enabled) {
+        mStealingEnabled = enabled;
+    }
+    
+    bool isStealingEnabled() const {
+        return mStealingEnabled;
+    }
+    
+    void setStealingMode(StealingMode mode) {
+        mStealingMode = mode;
+    }
+    
+    StealingMode getStealingMode() const {
+        return mStealingMode;
+    }
+    
     // Note on - returns voice index or -1 if no voice available
     int noteOn(int32_t note, double velocity) {
         // Check if this note is already playing - retrigger it
         int existingVoice = mAllocator.findVoicePlayingNote(note);
         if (existingVoice >= 0) {
             mVoices[existingVoice]->noteOn(note, velocity);
+            mVoiceVelocities[existingVoice] = velocity;
             return existingVoice;
         }
         
-        // Allocate a new voice
+        // Try to allocate a new voice
         int voiceIndex = mAllocator.allocate(note);
+        
+        // If no free voice and stealing is enabled, steal one
+        if (voiceIndex < 0 && mStealingEnabled) {
+            voiceIndex = stealVoice();
+            if (voiceIndex >= 0) {
+                // Deallocate the stolen voice first
+                mAllocator.deallocate(voiceIndex);
+                // Then reallocate it for the new note
+                mAllocator.allocate(note);
+                // The allocator will give us a different index potentially,
+                // so we need to find the right one
+                voiceIndex = mAllocator.findVoicePlayingNote(note);
+                if (voiceIndex < 0) {
+                    // Fallback - just use the stolen voice directly
+                    voiceIndex = stealVoice();
+                }
+            }
+        }
+        
         if (voiceIndex >= 0) {
+            mVoices[voiceIndex]->reset();  // Clean slate for stolen voice
+            mVoices[voiceIndex]->setParameters(mParameters);
             mVoices[voiceIndex]->noteOn(note, velocity);
+            mVoiceVelocities[voiceIndex] = velocity;
         }
         return voiceIndex;
     }
@@ -192,12 +241,42 @@ public:
     }
     
 private:
+    // Find a voice to steal based on current stealing mode
+    int stealVoice() {
+        switch (mStealingMode) {
+            case StealingMode::Oldest:
+                return mAllocator.getOldestActiveVoice();
+                
+            case StealingMode::Quietest:
+                return findQuietestVoice();
+        }
+        return -1;
+    }
+    
+    // Find the voice with the lowest velocity
+    int findQuietestVoice() {
+        int quietest = -1;
+        double quietestVelocity = 2.0;  // Higher than max possible
+        
+        for (int i = 0; i < mVoiceCount; ++i) {
+            if (mVoices[i]->isActive() && mVoiceVelocities[i] < quietestVelocity) {
+                quietestVelocity = mVoiceVelocities[i];
+                quietest = i;
+            }
+        }
+        return quietest;
+    }
+    
     int mVoiceCount;
     double mSampleRate;
     VoxVoiceParameters mParameters;
     
     std::array<std::unique_ptr<VoxVoice>, kMaxVoices> mVoices;
+    std::array<double, kMaxVoices> mVoiceVelocities;
     VoiceAllocator mAllocator;
+    
+    bool mStealingEnabled;
+    StealingMode mStealingMode;
 };
 
 #endif // __cplusplus
