@@ -3,7 +3,7 @@
 //  VoxCore
 //
 //  Vox Pulsar Synthesis Voice
-//  Combines PulsarOscillator + FormantFilter + ADSR Envelope
+//  Combines PulsarOscillator + FormantFilter + ADSR Envelope + Per-Voice LFO
 //
 
 #pragma once
@@ -13,6 +13,7 @@
 #include "PulsarOscillator.h"
 #include "FormantFilter.h"
 #include "ADSREnvelope.h"
+#include "LFO.h"
 #include <cmath>
 #include <algorithm>
 
@@ -47,6 +48,13 @@ struct VoxVoiceParameters {
     // Glide/Portamento
     bool glideEnabled = false;
     double glideTime = 0.1;          // seconds
+    
+    // Per-Voice LFO (Phase 2.1)
+    double lfoRate = 1.0;            // Hz (0.01 to 100)
+    int lfoWaveform = 0;             // 0=Sine, 1=Triangle, 2=Saw, 3=Square, 4=S&H
+    double lfoPhaseOffset = 0.0;     // 0.0 to 1.0 (represents 0-360°)
+    bool lfoRetrigger = true;        // Retrigger LFO on note on
+    double lfoPhaseSpread = 0.0;     // 0.0 to 1.0 (spread across voices)
 };
 
 class VoxVoice {
@@ -56,6 +64,7 @@ public:
         , mPulsarOsc(sampleRate)
         , mFormantFilter(sampleRate)
         , mAmpEnvelope(sampleRate)
+        , mLFO(sampleRate)
         , mCurrentNote(-1)
         , mTargetNote(-1)
         , mCurrentFrequency(440.0)
@@ -63,6 +72,7 @@ public:
         , mGlideCoeff(1.0)
         , mVelocity(1.0)
         , mNoteOn(false)
+        , mVoiceIndex(0)
     {
         // Initialize with default parameters
         setParameters(VoxVoiceParameters());
@@ -73,6 +83,7 @@ public:
         mPulsarOsc.setSampleRate(sampleRate);
         mFormantFilter.setSampleRate(sampleRate);
         mAmpEnvelope.setSampleRate(sampleRate);
+        mLFO.setSampleRate(sampleRate);
         updateGlideCoeff();
     }
     
@@ -106,6 +117,23 @@ public:
         mAmpEnvelope.setSustainLevel(params.ampSustain);
         mAmpEnvelope.setReleaseTime(params.ampRelease);
         
+        // Apply to LFO
+        mLFO.setRate(params.lfoRate);
+        mLFO.setWaveform(static_cast<LFO::Waveform>(params.lfoWaveform));
+        
+        // Calculate effective phase offset including voice spread
+        double effectivePhaseOffset = params.lfoPhaseOffset;
+        if (params.lfoPhaseSpread > 0.0) {
+            // Spread phase across voices (assuming max 8 voices)
+            effectivePhaseOffset += (mVoiceIndex / 8.0) * params.lfoPhaseSpread;
+            effectivePhaseOffset = std::fmod(effectivePhaseOffset, 1.0);
+        }
+        mLFO.setPhaseOffset(effectivePhaseOffset);
+        
+        // Set retrigger mode
+        mLFO.setRetriggerMode(params.lfoRetrigger ? 
+            LFO::RetriggerMode::NOTE_ON : LFO::RetriggerMode::FREE);
+        
         // Update glide coefficient
         updateGlideCoeff();
     }
@@ -138,6 +166,12 @@ public:
         
         mPulsarOsc.setFrequency(mCurrentFrequency);
         mAmpEnvelope.noteOn();
+        
+        // Retrigger LFO if configured
+        if (mParams.lfoRetrigger) {
+            mLFO.retrigger();
+        }
+        
         mNoteOn = true;
     }
     
@@ -172,6 +206,7 @@ public:
         mPulsarOsc.reset();
         mFormantFilter.reset();
         mAmpEnvelope.reset();
+        mLFO.reset();
         mCurrentNote = -1;
         mTargetNote = -1;
         mNoteOn = false;
@@ -195,6 +230,9 @@ public:
                 mCurrentNote = mTargetNote;
             }
         }
+        
+        // Process LFO (advance phase even when voice may not be modulating yet)
+        mCurrentLFOValue = mLFO.process();
         
         // Generate pulsar signal
         double signal = mPulsarOsc.process();
@@ -234,6 +272,21 @@ public:
     // Get current note
     int getCurrentNote() const { return mCurrentNote; }
     
+    // Voice index (for LFO phase spreading)
+    void setVoiceIndex(int index) { 
+        mVoiceIndex = index;
+        // Reapply parameters to update phase offset
+        setParameters(mParams);
+    }
+    int getVoiceIndex() const { return mVoiceIndex; }
+    
+    // Get current LFO value (for monitoring/visualization)
+    double getLFOValue() const { return mCurrentLFOValue; }
+    
+    // Access to LFO for advanced control
+    LFO& getLFO() { return mLFO; }
+    const LFO& getLFO() const { return mLFO; }
+    
 private:
     double noteToFrequency(int noteNumber) const {
         // MIDI note to frequency: f = 440 * 2^((n-69)/12)
@@ -258,6 +311,7 @@ private:
     PulsarOscillator mPulsarOsc;
     FormantFilter mFormantFilter;
     ADSREnvelope mAmpEnvelope;
+    LFO mLFO;
     
     // Parameters
     VoxVoiceParameters mParams;
@@ -270,6 +324,8 @@ private:
     double mGlideCoeff;
     double mVelocity;
     bool mNoteOn;
+    int mVoiceIndex;
+    double mCurrentLFOValue = 0.0;
 };
 
 #endif // __cplusplus

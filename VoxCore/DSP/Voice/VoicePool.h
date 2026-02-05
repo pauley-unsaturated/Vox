@@ -34,9 +34,10 @@ public:
         , mStealingEnabled(true)
         , mStealingMode(StealingMode::Oldest)
     {
-        // Initialize all voices
+        // Initialize all voices with their index for LFO phase spreading
         for (int i = 0; i < kMaxVoices; ++i) {
             mVoices[i] = std::make_unique<VoxVoice>(sampleRate);
+            mVoices[i]->setVoiceIndex(i);  // Set voice index for phase spreading
             mVoiceVelocities[i] = 0.0;
         }
     }
