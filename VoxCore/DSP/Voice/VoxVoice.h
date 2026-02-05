@@ -55,6 +55,12 @@ struct VoxVoiceParameters {
     double lfoPhaseOffset = 0.0;     // 0.0 to 1.0 (represents 0-360°)
     bool lfoRetrigger = true;        // Retrigger LFO on note on
     double lfoPhaseSpread = 0.0;     // 0.0 to 1.0 (spread across voices)
+    
+    // Per-Voice Mod Envelope (Phase 2.2)
+    double modAttack = 0.01;         // seconds
+    double modDecay = 0.1;           // seconds
+    double modSustain = 0.5;         // 0.0 to 1.0
+    double modRelease = 0.3;         // seconds
 };
 
 class VoxVoice {
@@ -64,6 +70,7 @@ public:
         , mPulsarOsc(sampleRate)
         , mFormantFilter(sampleRate)
         , mAmpEnvelope(sampleRate)
+        , mModEnvelope(sampleRate)
         , mLFO(sampleRate)
         , mCurrentNote(-1)
         , mTargetNote(-1)
@@ -83,6 +90,7 @@ public:
         mPulsarOsc.setSampleRate(sampleRate);
         mFormantFilter.setSampleRate(sampleRate);
         mAmpEnvelope.setSampleRate(sampleRate);
+        mModEnvelope.setSampleRate(sampleRate);
         mLFO.setSampleRate(sampleRate);
         updateGlideCoeff();
     }
@@ -111,11 +119,17 @@ public:
         mFormantFilter.setFormant2Gain(formantGain * 0.7);  // F2 slightly lower
         mFormantFilter.setDryGain(dryGain);
         
-        // Apply to envelope
+        // Apply to amp envelope
         mAmpEnvelope.setAttackTime(params.ampAttack);
         mAmpEnvelope.setDecayTime(params.ampDecay);
         mAmpEnvelope.setSustainLevel(params.ampSustain);
         mAmpEnvelope.setReleaseTime(params.ampRelease);
+        
+        // Apply to mod envelope (Phase 2.2)
+        mModEnvelope.setAttackTime(params.modAttack);
+        mModEnvelope.setDecayTime(params.modDecay);
+        mModEnvelope.setSustainLevel(params.modSustain);
+        mModEnvelope.setReleaseTime(params.modRelease);
         
         // Apply to LFO
         mLFO.setRate(params.lfoRate);
@@ -166,6 +180,7 @@ public:
         
         mPulsarOsc.setFrequency(mCurrentFrequency);
         mAmpEnvelope.noteOn();
+        mModEnvelope.noteOn();  // Trigger mod envelope (Phase 2.2)
         
         // Retrigger LFO if configured
         if (mParams.lfoRetrigger) {
@@ -180,6 +195,7 @@ public:
         // Only release if this is the current note (or no note specified)
         if (noteNumber < 0 || noteNumber == mCurrentNote || noteNumber == mTargetNote) {
             mAmpEnvelope.noteOff();
+            mModEnvelope.noteOff();  // Release mod envelope (Phase 2.2)
             mNoteOn = false;
         }
     }
@@ -206,10 +222,13 @@ public:
         mPulsarOsc.reset();
         mFormantFilter.reset();
         mAmpEnvelope.reset();
+        mModEnvelope.reset();  // Reset mod envelope (Phase 2.2)
         mLFO.reset();
         mCurrentNote = -1;
         mTargetNote = -1;
         mNoteOn = false;
+        mCurrentLFOValue = 0.0;
+        mCurrentModEnvValue = 0.0;
     }
     
     // Process one sample
@@ -233,6 +252,9 @@ public:
         
         // Process LFO (advance phase even when voice may not be modulating yet)
         mCurrentLFOValue = mLFO.process();
+        
+        // Process mod envelope (Phase 2.2)
+        mCurrentModEnvValue = mModEnvelope.process();
         
         // Generate pulsar signal
         double signal = mPulsarOsc.process();
@@ -287,6 +309,16 @@ public:
     LFO& getLFO() { return mLFO; }
     const LFO& getLFO() const { return mLFO; }
     
+    // Get current mod envelope value (Phase 2.2)
+    double getModEnvelopeValue() const { return mCurrentModEnvValue; }
+    
+    // Get mod envelope state (Phase 2.2)
+    ADSREnvelope::State getModEnvelopeState() const { return mModEnvelope.getState(); }
+    
+    // Access to mod envelope for advanced control
+    ADSREnvelope& getModEnvelope() { return mModEnvelope; }
+    const ADSREnvelope& getModEnvelope() const { return mModEnvelope; }
+    
 private:
     double noteToFrequency(int noteNumber) const {
         // MIDI note to frequency: f = 440 * 2^((n-69)/12)
@@ -311,6 +343,7 @@ private:
     PulsarOscillator mPulsarOsc;
     FormantFilter mFormantFilter;
     ADSREnvelope mAmpEnvelope;
+    ADSREnvelope mModEnvelope;  // Mod envelope (Phase 2.2)
     LFO mLFO;
     
     // Parameters
@@ -326,6 +359,7 @@ private:
     bool mNoteOn;
     int mVoiceIndex;
     double mCurrentLFOValue = 0.0;
+    double mCurrentModEnvValue = 0.0;  // Phase 2.2
 };
 
 #endif // __cplusplus
