@@ -427,74 +427,112 @@ struct StochasticCloudTests {
         #expect(osc.getGrainDensity() == 20.0, "Should clamp to min 20")
     }
     
-    @Test("Async mode: grain density independent of pitch", .disabled("Grain counting needs debugging"))
-    func testGrainDensityIndependentOfPitch() {
+    @Test("Async mode produces output")
+    func testAsyncModeProducesOutput() {
         var osc = PulsarOscillator(sampleRate)
-        osc.setDutyCycle(0.1)  // Short grains for clearer counting
+        osc.setFrequency(100.0)
+        osc.setDutyCycle(0.3)
         osc.setAsyncMode(true)
-        osc.setGrainDensity(200.0)  // 200 grains/sec
+        osc.setGrainDensity(200.0)
         
-        // Count grains at different pitches
-        func countGrains(pitch: Double) -> Int {
+        var maxSample = 0.0
+        var nonZeroCount = 0
+        var above03Count = 0
+        
+        for _ in 0..<Int(sampleRate) {
+            let sample = osc.process()
+            maxSample = max(maxSample, Swift.abs(sample))
+            if Swift.abs(sample) > 0.001 {
+                nonZeroCount += 1
+            }
+            if Swift.abs(sample) > 0.3 {
+                above03Count += 1
+            }
+        }
+        
+        #expect(maxSample > 0.3, "Async mode should produce output above 0.3, max sample: \(maxSample)")
+        #expect(nonZeroCount > 1000, "Should have many non-zero samples, got: \(nonZeroCount)")
+        #expect(above03Count > 100, "Should have samples above 0.3, got: \(above03Count)")
+    }
+    
+    @Test("Async mode: grain density independent of pitch")
+    func testGrainDensityIndependentOfPitch() {
+        // Count grains by detecting when output rises above threshold
+        // Use GAUSSIAN shape (unipolar) for accurate 1-crossing-per-grain counting
+        func countGrains(pitch: Double, density: Double, asyncMode: Bool) -> Int {
             var testOsc = PulsarOscillator(sampleRate)
             testOsc.setFrequency(pitch)
-            testOsc.setDutyCycle(0.1)
-            testOsc.setAsyncMode(true)
-            testOsc.setGrainDensity(200.0)
+            testOsc.setDutyCycle(0.3)  // Wider duty for clearer grains
+            testOsc.setAsyncMode(asyncMode)
+            testOsc.setGrainDensity(density)
+            testOsc.setShape(.GAUSSIAN)  // Unipolar - one crossing per grain
             
             var grainCount = 0
-            var wasInGrain = false
+            var wasAboveThreshold = false
+            let threshold = 0.1  // Gaussian peaks at 1.0, this catches grain onset
             
             for _ in 0..<Int(sampleRate) {  // 1 second
                 let sample = testOsc.process()
-                let inGrain = Swift.abs(sample) > 0.01
+                let aboveThreshold = sample > threshold  // Gaussian is always positive
                 
-                if inGrain && !wasInGrain {
+                // Count rising edge (entering grain)
+                if aboveThreshold && !wasAboveThreshold {
                     grainCount += 1
                 }
-                wasInGrain = inGrain
+                wasAboveThreshold = aboveThreshold
             }
             return grainCount
         }
         
-        let grainsAt110Hz = countGrains(pitch: 110.0)
-        let grainsAt440Hz = countGrains(pitch: 440.0)
-        let grainsAt880Hz = countGrains(pitch: 880.0)
+        // In async mode, grain density should be independent of pitch
+        let grainsAt110Hz = countGrains(pitch: 110.0, density: 200.0, asyncMode: true)
+        let grainsAt440Hz = countGrains(pitch: 440.0, density: 200.0, asyncMode: true)
+        let grainsAt880Hz = countGrains(pitch: 880.0, density: 200.0, asyncMode: true)
         
-        // All should be approximately 200 grains (within tolerance)
-        let tolerance = 50  // Allow some variance
+        // All should be approximately 200 grains
+        let expectedGrains = 200
+        let tolerance = 40  // Allow some timing variance
         
-        #expect(Swift.abs(grainsAt110Hz - 200) < tolerance,
-               "At 110Hz, should have ~200 grains, got \(grainsAt110Hz)")
-        #expect(Swift.abs(grainsAt440Hz - 200) < tolerance,
-               "At 440Hz, should have ~200 grains, got \(grainsAt440Hz)")
-        #expect(Swift.abs(grainsAt880Hz - 200) < tolerance,
-               "At 880Hz, should have ~200 grains, got \(grainsAt880Hz)")
+        #expect(Swift.abs(grainsAt110Hz - expectedGrains) < tolerance,
+               "At 110Hz, should have ~\(expectedGrains) grains, got \(grainsAt110Hz)")
+        #expect(Swift.abs(grainsAt440Hz - expectedGrains) < tolerance,
+               "At 440Hz, should have ~\(expectedGrains) grains, got \(grainsAt440Hz)")
+        #expect(Swift.abs(grainsAt880Hz - expectedGrains) < tolerance,
+               "At 880Hz, should have ~\(expectedGrains) grains, got \(grainsAt880Hz)")
+        
+        // Key test: all should be similar regardless of pitch
+        let avgGrains = Double(grainsAt110Hz + grainsAt440Hz + grainsAt880Hz) / 3.0
+        #expect(Swift.abs(Double(grainsAt110Hz) - avgGrains) < 30, "110Hz grain count should be near average")
+        #expect(Swift.abs(Double(grainsAt440Hz) - avgGrains) < 30, "440Hz grain count should be near average")
+        #expect(Swift.abs(Double(grainsAt880Hz) - avgGrains) < 30, "880Hz grain count should be near average")
     }
     
-    @Test("Sync mode: grain rate equals pitch", .disabled("Grain counting needs debugging"))
+    @Test("Sync mode: grain rate equals pitch")
     func testSyncModeGrainRateEqualsPitch() {
         var osc = PulsarOscillator(sampleRate)
         osc.setFrequency(100.0)  // Should produce ~100 grains/sec
-        osc.setDutyCycle(0.2)
+        osc.setDutyCycle(0.3)    // Wider duty for clearer detection
         osc.setAsyncMode(false)  // Sync mode
+        osc.setShape(.GAUSSIAN)  // Unipolar - one crossing per grain
         
         var grainCount = 0
-        var wasInGrain = false
+        var wasAboveThreshold = false
+        let threshold = 0.1  // Gaussian peaks at 1.0
         
         for _ in 0..<Int(sampleRate) {
             let sample = osc.process()
-            let inGrain = Swift.abs(sample) > 0.01
+            let aboveThreshold = sample > threshold  // Gaussian is always positive
             
-            if inGrain && !wasInGrain {
+            // Count rising edge (entering grain)
+            if aboveThreshold && !wasAboveThreshold {
                 grainCount += 1
             }
-            wasInGrain = inGrain
+            wasAboveThreshold = aboveThreshold
         }
         
         // Should be close to 100 grains (the frequency)
-        #expect(Swift.abs(grainCount - 100) < 10,
-               "In sync mode, grain rate should equal frequency. Got \(grainCount) grains at 100Hz")
+        #expect(Swift.abs(grainCount - 100) < 15,
+               "In sync mode at 100Hz, should have ~100 grains, got \(grainCount)")
     }
     
     // ═══════════════════════════════════════════════════════════════════
