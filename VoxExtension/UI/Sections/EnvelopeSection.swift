@@ -2,12 +2,12 @@
 //  EnvelopeSection.swift
 //  VoxExtension
 //
-//  Created by Mark Pauley on 7/4/25.
+//  Vox Pulsar Synthesizer - Amplitude Envelope Section
 //
 
 import SwiftUI
 
-/// Envelope section with SH-101 style layout showing both AMP and FILTER envelopes
+/// Envelope section for the Vox pulsar synth - shows AMP envelope (ADSR)
 struct EnvelopeSection: View {
     var parameterTree: ObservableAUParameterGroup?
     
@@ -19,33 +19,20 @@ struct EnvelopeSection: View {
         if let tree = parameterTree {
             VStack(alignment: .leading, spacing: 8) {
                 // Section title - left aligned
-                Text("ENVELOPE")
+                Text("AMP ENVELOPE")
                     .font(.system(size: 11, weight: .bold))
                     .foregroundColor(.synthPrimary)
                     .fixedSize()
                 
                 VStack {
                     HStack(alignment: .top, spacing: 16) {
-                        // AMP Envelope (left side)
+                        // AMP Envelope ADSR
                         envelopeGroup(
-                            title: "AMP",
                             params: [
                                 (tree.ampEnvelope.ampAttack, "A"),
                                 (tree.ampEnvelope.ampDecay, "D"),
                                 (tree.ampEnvelope.ampSustain, "S"),
                                 (tree.ampEnvelope.ampRelease, "R")
-                            ]
-                        )
-                        
-                        // FILTER Envelope (right side) - includes ENV amount slider
-                        envelopeGroup(
-                            title: "FILTER",
-                            params: [
-                                (tree.filterEnvelope.filterAttack, "A"),
-                                (tree.filterEnvelope.filterDecay, "D"),
-                                (tree.filterEnvelope.filterSustain, "S"),
-                                (tree.filterEnvelope.filterRelease, "R"),
-                                (tree.envelopeModulation.lpFilterEnvAmount, "ENV")
                             ]
                         )
                     }
@@ -67,15 +54,8 @@ struct EnvelopeSection: View {
     }
     
     @ViewBuilder
-    private func envelopeGroup(title: String, params: [(ObservableAUParameter, String)]) -> some View {
+    private func envelopeGroup(params: [(ObservableAUParameter, String)]) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text(title)
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(.orange)
-                Spacer()
-            }
-            
             HStack(spacing: sliderSpacing) {
                 ForEach(Array(params.enumerated()), id: \.offset) { _, item in
                     VStack(spacing: 4) {

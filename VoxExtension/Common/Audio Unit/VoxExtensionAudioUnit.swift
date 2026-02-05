@@ -6,7 +6,10 @@
 //
 
 import AVFoundation
+import os.log
 internal import VoxCore
+
+private let auLog = OSLog(subsystem: "com.unsaturated.Vox", category: "AudioUnit")
 
 public class VoxExtensionAudioUnit: AUAudioUnit, @unchecked Sendable
 {
@@ -16,6 +19,7 @@ public class VoxExtensionAudioUnit: AUAudioUnit, @unchecked Sendable
 
     private var outputBus: AUAudioUnitBus?
     private var _outputBusses: AUAudioUnitBusArray!
+    private var _inputBusses: AUAudioUnitBusArray!
 
     private var format: AVAudioFormat
 
@@ -23,14 +27,27 @@ public class VoxExtensionAudioUnit: AUAudioUnit, @unchecked Sendable
     private var parameterTreeInitialized = false
 
     @objc override init(componentDescription: AudioComponentDescription, options: AudioComponentInstantiationOptions) throws {
+        os_log(.info, log: auLog, "VoxExtensionAudioUnit init() called")
         self.format = AVAudioFormat(standardFormatWithSampleRate: 44_100, channels: 2)!
         try super.init(componentDescription: componentDescription, options: options)
         outputBus = try AUAudioUnitBus(format: self.format)
         outputBus?.maximumChannelCount = 2
         _outputBusses = AUAudioUnitBusArray(audioUnit: self, busType: AUAudioUnitBusType.output, busses: [outputBus!])
+        _inputBusses = AUAudioUnitBusArray(audioUnit: self, busType: AUAudioUnitBusType.input, busses: [])
         processHelper = AUProcessHelper(&kernel)
+        os_log(.info, log: auLog, "VoxExtensionAudioUnit init() complete")
+    }
+    
+    // MARK: - Channel Capabilities
+    // Synth: no input, stereo output
+    public override var channelCapabilities: [NSNumber]? {
+        return [0, 2]  // 0 inputs, 2 outputs (stereo)
     }
 
+    public override var inputBusses: AUAudioUnitBusArray {
+        return _inputBusses
+    }
+    
     public override var outputBusses: AUAudioUnitBusArray {
         return _outputBusses
     }
@@ -64,18 +81,34 @@ public class VoxExtensionAudioUnit: AUAudioUnit, @unchecked Sendable
     }
 
     public override func allocateRenderResources() throws {
-        let outputChannelCount = self.outputBusses[0].format.channelCount
+        os_log(.info, log: auLog, "allocateRenderResources() called")
+        
+        // Call super first so the host can set up the bus formats
+        os_log(.info, log: auLog, "About to call super.allocateRenderResources()")
+        try super.allocateRenderResources()
+        os_log(.info, log: auLog, "super.allocateRenderResources() complete")
+        
+        // Ensure parameter tree is initialized before rendering
+        ensureParameterTree()
+        os_log(.info, log: auLog, "Parameter tree ensured")
+        
+        let outputFormat = self.outputBusses[0].format
+        let outputChannelCount = outputFormat.channelCount
+        let sampleRate = outputFormat.sampleRate
+        os_log(.info, log: auLog, "Output format: channels=%d, sampleRate=%f", outputChannelCount, sampleRate)
         
         kernel.setMusicalContextBlock(self.musicalContextBlock)
         kernel.setTransportStateBlock(self.transportStateBlock)
-        kernel.initialize(Int32(outputChannelCount), outputBus!.format.sampleRate)
+        os_log(.info, log: auLog, "About to initialize kernel")
+        kernel.initialize(Int32(outputChannelCount), sampleRate)
+        os_log(.info, log: auLog, "Kernel initialized")
 
-        processHelper?.setChannelCount(0, self.outputBusses[0].format.channelCount)
+        processHelper?.setChannelCount(0, outputChannelCount)
+        os_log(.info, log: auLog, "Process helper configured")
 
         // Switch to scheduled parameter updates during rendering for thread safety
         setupRenderingParameterObserver()
-
-        try super.allocateRenderResources()
+        os_log(.info, log: auLog, "allocateRenderResources() complete")
     }
 
     public override func deallocateRenderResources() {
