@@ -1,0 +1,1261 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		E72CA2F52DD919F4007F73D0 /* VoxCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E72CA2EB2DD919F4007F73D0 /* VoxCore.framework */; };
+		E72CA3002DD919F4007F73D0 /* VoxCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E72CA2EB2DD919F4007F73D0 /* VoxCore.framework */; };
+		E72CA3012DD919F4007F73D0 /* VoxCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E72CA2EB2DD919F4007F73D0 /* VoxCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		E72CA3242DD93888007F73D0 /* VoxCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E72CA2EB2DD919F4007F73D0 /* VoxCore.framework */; };
+		E767E9732DD8678D0071B40C /* VoxExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E767E9722DD8678D0071B40C /* VoxExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		E7CE69C12DEB8B2E004C8963 /* VoxCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E72CA2EB2DD919F4007F73D0 /* VoxCore.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		E72CA2F62DD919F4007F73D0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E767E92B2DD8678C0071B40C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E72CA2EA2DD919F4007F73D0;
+			remoteInfo = VoxCore;
+		};
+		E72CA2F82DD919F4007F73D0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E767E92B2DD8678C0071B40C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E767E9322DD8678C0071B40C;
+			remoteInfo = Vox;
+		};
+		E72CA2FE2DD919F4007F73D0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E767E92B2DD8678C0071B40C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E72CA2EA2DD919F4007F73D0;
+			remoteInfo = VoxCore;
+		};
+		E767E95D2DD8678D0071B40C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E767E92B2DD8678C0071B40C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E767E9322DD8678C0071B40C;
+			remoteInfo = Vox;
+		};
+		E767E9672DD8678D0071B40C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E767E92B2DD8678C0071B40C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E767E9322DD8678C0071B40C;
+			remoteInfo = Vox;
+		};
+		E767E9742DD8678D0071B40C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E767E92B2DD8678C0071B40C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E767E9712DD8678D0071B40C;
+			remoteInfo = VoxExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		E72CA3062DD919F4007F73D0 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				E72CA3012DD919F4007F73D0 /* VoxCore.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E767E9A32DD8678D0071B40C /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				E767E9732DD8678D0071B40C /* VoxExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		E72CA2EB2DD919F4007F73D0 /* VoxCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = VoxCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E72CA2F42DD919F4007F73D0 /* VoxCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VoxCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E767E9332DD8678C0071B40C /* Vox.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Vox.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E767E95C2DD8678D0071B40C /* VoxTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VoxTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E767E9662DD8678D0071B40C /* VoxUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VoxUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E767E9722DD8678D0071B40C /* VoxExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VoxExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		E72CA3022DD919F4007F73D0 /* Exceptions for "VoxCore" folder in "VoxCore" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+				README.md,
+			);
+			publicHeaders = (
+				DSP/Envelopes/ADSREnvelope.h,
+				DSP/Filters/MoogLadderFilter.h,
+				DSP/Oscillators/DPWOscillator.h,
+				DSP/Oscillators/LFO.h,
+				DSP/Oscillators/Oscillator.h,
+				DSP/Oscillators/PolyBLEPOscillator.h,
+				DSP/Oscillators/SinOscillator.h,
+				DSP/Sequencer/Arpeggiator.h,
+				DSP/Sequencer/StepSequencer.h,
+				DSP/Sequencer/SyncablePhaseRamp.h,
+				DSP/Utilities/DSPUtilities.h,
+				DSP/Voice/MonophonicVoice.h,
+				include/VoxCore.h,
+			);
+			target = E72CA2EA2DD919F4007F73D0 /* VoxCore */;
+		};
+		E72CA32A2DD94DE8007F73D0 /* Exceptions for "VoxExtension" folder in "VoxTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Swift/DSP/FilterWrapper.swift,
+				Swift/DSP/OscillatorWrapper.swift,
+			);
+			target = E767E95B2DD8678D0071B40C /* VoxTests */;
+		};
+		E767E99C2DD8678D0071B40C /* Exceptions for "VoxExtension" folder in "VoxExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+				README.md,
+				Swift/README_CXX_INTEROP.md,
+			);
+			target = E767E9712DD8678D0071B40C /* VoxExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		E767E9A02DD8678D0071B40C /* Exceptions for "VoxExtension" folder in "Copy Bundle Resources" phase from "VoxExtension" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = E767E9702DD8678D0071B40C /* Resources */;
+			membershipExceptions = (
+				Common/DSP/VoxExtensionAUProcessHelper.hpp,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		E72CA2EC2DD919F4007F73D0 /* VoxCore */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E72CA3022DD919F4007F73D0 /* Exceptions for "VoxCore" folder in "VoxCore" target */,
+			);
+			path = VoxCore;
+			sourceTree = "<group>";
+		};
+		E72CA2FA2DD919F4007F73D0 /* VoxCoreTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = VoxCoreTests;
+			sourceTree = "<group>";
+		};
+		E767E9352DD8678C0071B40C /* Vox */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Vox;
+			sourceTree = "<group>";
+		};
+		E767E95F2DD8678D0071B40C /* VoxTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = VoxTests;
+			sourceTree = "<group>";
+		};
+		E767E9692DD8678D0071B40C /* VoxUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = VoxUITests;
+			sourceTree = "<group>";
+		};
+		E767E9762DD8678D0071B40C /* VoxExtension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E72CA32A2DD94DE8007F73D0 /* Exceptions for "VoxExtension" folder in "VoxTests" target */,
+				E767E99C2DD8678D0071B40C /* Exceptions for "VoxExtension" folder in "VoxExtension" target */,
+				E767E9A02DD8678D0071B40C /* Exceptions for "VoxExtension" folder in "Copy Bundle Resources" phase from "VoxExtension" target */,
+			);
+			path = VoxExtension;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E72CA2E82DD919F4007F73D0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E72CA2F12DD919F4007F73D0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E72CA2F52DD919F4007F73D0 /* VoxCore.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E767E9302DD8678C0071B40C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E72CA3002DD919F4007F73D0 /* VoxCore.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E767E9592DD8678D0071B40C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E7CE69C12DEB8B2E004C8963 /* VoxCore.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E767E9632DD8678D0071B40C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E767E96F2DD8678D0071B40C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E72CA3242DD93888007F73D0 /* VoxCore.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		E72CA3232DD93888007F73D0 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E767E92A2DD8678C0071B40C = {
+			isa = PBXGroup;
+			children = (
+				E767E9352DD8678C0071B40C /* Vox */,
+				E767E95F2DD8678D0071B40C /* VoxTests */,
+				E767E9692DD8678D0071B40C /* VoxUITests */,
+				E767E9762DD8678D0071B40C /* VoxExtension */,
+				E72CA2EC2DD919F4007F73D0 /* VoxCore */,
+				E72CA2FA2DD919F4007F73D0 /* VoxCoreTests */,
+				E72CA3232DD93888007F73D0 /* Frameworks */,
+				E767E9342DD8678C0071B40C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E767E9342DD8678C0071B40C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E767E9332DD8678C0071B40C /* Vox.app */,
+				E767E95C2DD8678D0071B40C /* VoxTests.xctest */,
+				E767E9662DD8678D0071B40C /* VoxUITests.xctest */,
+				E767E9722DD8678D0071B40C /* VoxExtension.appex */,
+				E72CA2EB2DD919F4007F73D0 /* VoxCore.framework */,
+				E72CA2F42DD919F4007F73D0 /* VoxCoreTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		E72CA2E62DD919F4007F73D0 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		E72CA2EA2DD919F4007F73D0 /* VoxCore */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E72CA3032DD919F4007F73D0 /* Build configuration list for PBXNativeTarget "VoxCore" */;
+			buildPhases = (
+				E72CA2E62DD919F4007F73D0 /* Headers */,
+				E72CA2E72DD919F4007F73D0 /* Sources */,
+				E72CA2E82DD919F4007F73D0 /* Frameworks */,
+				E72CA2E92DD919F4007F73D0 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				E72CA2EC2DD919F4007F73D0 /* VoxCore */,
+			);
+			name = VoxCore;
+			packageProductDependencies = (
+			);
+			productName = VoxCore;
+			productReference = E72CA2EB2DD919F4007F73D0 /* VoxCore.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		E72CA2F32DD919F4007F73D0 /* VoxCoreTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E72CA3072DD919F4007F73D0 /* Build configuration list for PBXNativeTarget "VoxCoreTests" */;
+			buildPhases = (
+				E72CA2F02DD919F4007F73D0 /* Sources */,
+				E72CA2F12DD919F4007F73D0 /* Frameworks */,
+				E72CA2F22DD919F4007F73D0 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E72CA2F72DD919F4007F73D0 /* PBXTargetDependency */,
+				E72CA2F92DD919F4007F73D0 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				E72CA2FA2DD919F4007F73D0 /* VoxCoreTests */,
+			);
+			name = VoxCoreTests;
+			packageProductDependencies = (
+			);
+			productName = VoxCoreTests;
+			productReference = E72CA2F42DD919F4007F73D0 /* VoxCoreTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		E767E9322DD8678C0071B40C /* Vox */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E767E9A42DD8678D0071B40C /* Build configuration list for PBXNativeTarget "Vox" */;
+			buildPhases = (
+				E767E92F2DD8678C0071B40C /* Sources */,
+				E767E9302DD8678C0071B40C /* Frameworks */,
+				E767E9312DD8678C0071B40C /* Resources */,
+				E767E9A32DD8678D0071B40C /* Embed Foundation Extensions */,
+				E72CA3062DD919F4007F73D0 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E767E9752DD8678D0071B40C /* PBXTargetDependency */,
+				E72CA2FF2DD919F4007F73D0 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				E767E9352DD8678C0071B40C /* Vox */,
+			);
+			name = Vox;
+			packageProductDependencies = (
+			);
+			productName = Vox;
+			productReference = E767E9332DD8678C0071B40C /* Vox.app */;
+			productType = "com.apple.product-type.application";
+		};
+		E767E95B2DD8678D0071B40C /* VoxTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E767E9A72DD8678D0071B40C /* Build configuration list for PBXNativeTarget "VoxTests" */;
+			buildPhases = (
+				E767E9582DD8678D0071B40C /* Sources */,
+				E767E9592DD8678D0071B40C /* Frameworks */,
+				E767E95A2DD8678D0071B40C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E767E95E2DD8678D0071B40C /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				E767E95F2DD8678D0071B40C /* VoxTests */,
+			);
+			name = VoxTests;
+			packageProductDependencies = (
+			);
+			productName = VoxTests;
+			productReference = E767E95C2DD8678D0071B40C /* VoxTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		E767E9652DD8678D0071B40C /* VoxUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E767E9AA2DD8678D0071B40C /* Build configuration list for PBXNativeTarget "VoxUITests" */;
+			buildPhases = (
+				E767E9622DD8678D0071B40C /* Sources */,
+				E767E9632DD8678D0071B40C /* Frameworks */,
+				E767E9642DD8678D0071B40C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E767E9682DD8678D0071B40C /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				E767E9692DD8678D0071B40C /* VoxUITests */,
+			);
+			name = VoxUITests;
+			packageProductDependencies = (
+			);
+			productName = VoxUITests;
+			productReference = E767E9662DD8678D0071B40C /* VoxUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		E767E9712DD8678D0071B40C /* VoxExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E767E99D2DD8678D0071B40C /* Build configuration list for PBXNativeTarget "VoxExtension" */;
+			buildPhases = (
+				E767E96E2DD8678D0071B40C /* Sources */,
+				E767E96F2DD8678D0071B40C /* Frameworks */,
+				E767E9702DD8678D0071B40C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				E767E9762DD8678D0071B40C /* VoxExtension */,
+			);
+			name = VoxExtension;
+			packageProductDependencies = (
+			);
+			productName = VoxExtension;
+			productReference = E767E9722DD8678D0071B40C /* VoxExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E767E92B2DD8678C0071B40C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1620;
+				LastUpgradeCheck = 1620;
+				TargetAttributes = {
+					E72CA2EA2DD919F4007F73D0 = {
+						CreatedOnToolsVersion = 16.2;
+						LastSwiftMigration = 1620;
+					};
+					E72CA2F32DD919F4007F73D0 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = E767E9322DD8678C0071B40C;
+					};
+					E767E9322DD8678C0071B40C = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					E767E95B2DD8678D0071B40C = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = E767E9322DD8678C0071B40C;
+					};
+					E767E9652DD8678D0071B40C = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = E767E9322DD8678C0071B40C;
+					};
+					E767E9712DD8678D0071B40C = {
+						CreatedOnToolsVersion = 16.2;
+					};
+				};
+			};
+			buildConfigurationList = E767E92E2DD8678C0071B40C /* Build configuration list for PBXProject "Vox" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = E767E92A2DD8678C0071B40C;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = E767E9342DD8678C0071B40C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E767E9322DD8678C0071B40C /* Vox */,
+				E767E95B2DD8678D0071B40C /* VoxTests */,
+				E767E9652DD8678D0071B40C /* VoxUITests */,
+				E767E9712DD8678D0071B40C /* VoxExtension */,
+				E72CA2EA2DD919F4007F73D0 /* VoxCore */,
+				E72CA2F32DD919F4007F73D0 /* VoxCoreTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E72CA2E92DD919F4007F73D0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E72CA2F22DD919F4007F73D0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E767E9312DD8678C0071B40C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E767E95A2DD8678D0071B40C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E767E9642DD8678D0071B40C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E767E9702DD8678D0071B40C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E72CA2E72DD919F4007F73D0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E72CA2F02DD919F4007F73D0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E767E92F2DD8678C0071B40C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E767E9582DD8678D0071B40C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E767E9622DD8678D0071B40C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E767E96E2DD8678D0071B40C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E72CA2F72DD919F4007F73D0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E72CA2EA2DD919F4007F73D0 /* VoxCore */;
+			targetProxy = E72CA2F62DD919F4007F73D0 /* PBXContainerItemProxy */;
+		};
+		E72CA2F92DD919F4007F73D0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E767E9322DD8678C0071B40C /* Vox */;
+			targetProxy = E72CA2F82DD919F4007F73D0 /* PBXContainerItemProxy */;
+		};
+		E72CA2FF2DD919F4007F73D0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E72CA2EA2DD919F4007F73D0 /* VoxCore */;
+			targetProxy = E72CA2FE2DD919F4007F73D0 /* PBXContainerItemProxy */;
+		};
+		E767E95E2DD8678D0071B40C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E767E9322DD8678C0071B40C /* Vox */;
+			targetProxy = E767E95D2DD8678D0071B40C /* PBXContainerItemProxy */;
+		};
+		E767E9682DD8678D0071B40C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E767E9322DD8678C0071B40C /* Vox */;
+			targetProxy = E767E9672DD8678D0071B40C /* PBXContainerItemProxy */;
+		};
+		E767E9752DD8678D0071B40C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E767E9712DD8678D0071B40C /* VoxExtension */;
+			targetProxy = E767E9742DD8678D0071B40C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		E72CA3042DD919F4007F73D0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++23";
+				CLANG_ENABLE_MODULES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = NO;
+				GCC_C_LANGUAGE_STANDARD = c17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VoxCore/Info.plist;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = (
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = com.unsaturated.VoxCore;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = auto;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				USER_HEADER_SEARCH_PATHS = (
+					VoxCore/DSP,
+					VoxCore/include,
+					"$(PROJECT_DIR)",
+				);
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+				XROS_DEPLOYMENT_TARGET = 2.2;
+			};
+			name = Debug;
+		};
+		E72CA3052DD919F4007F73D0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++23";
+				CLANG_ENABLE_MODULES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = NO;
+				GCC_C_LANGUAGE_STANDARD = c17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VoxCore/Info.plist;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = (
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = com.unsaturated.VoxCore;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = auto;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				USER_HEADER_SEARCH_PATHS = (
+					VoxCore/DSP,
+					VoxCore/include,
+					"$(PROJECT_DIR)",
+				);
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+				XROS_DEPLOYMENT_TARGET = 2.2;
+			};
+			name = Release;
+		};
+		E72CA3082DD919F4007F73D0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CURRENT_PROJECT_VERSION = 1;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.unsaturated.VoxCoreTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_INCLUDE_PATHS = "VoxCore/DSP VoxCore/include";
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Vox.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Vox";
+				USER_HEADER_SEARCH_PATHS = (
+					VoxCore/DSP,
+					VoxCore/include,
+					"$(PROJECT_DIR)",
+				);
+				XROS_DEPLOYMENT_TARGET = 2.2;
+			};
+			name = Debug;
+		};
+		E72CA3092DD919F4007F73D0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CURRENT_PROJECT_VERSION = 1;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.unsaturated.VoxCoreTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_INCLUDE_PATHS = "VoxCore/DSP VoxCore/include";
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Vox.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Vox";
+				USER_HEADER_SEARCH_PATHS = (
+					VoxCore/DSP,
+					VoxCore/include,
+					"$(PROJECT_DIR)",
+				);
+				XROS_DEPLOYMENT_TARGET = 2.2;
+			};
+			name = Release;
+		};
+		E767E99E2DD8678D0071B40C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
+				CLANG_CXX_LIBRARY = "libc++";
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VoxExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = VoxExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.unsaturated.Vox.VoxExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SKIP_INSTALL = YES;
+				STRIP_STYLE = debugging;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INCLUDE_PATHS = VoxExtension/DSP;
+				SWIFT_OBJC_BRIDGING_HEADER = "VoxExtension/Common/VoxExtension-Bridging-Header.h";
+				SWIFT_OBJC_INTEROP_MODE = objcxx;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				USER_HEADER_SEARCH_PATHS = (
+					VoxExtension/DSP,
+					VoxCore/include,
+					VoxCore,
+					"$(PROJECT_DIR)",
+				);
+				XROS_DEPLOYMENT_TARGET = 2.2;
+			};
+			name = Debug;
+		};
+		E767E99F2DD8678D0071B40C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
+				CLANG_CXX_LIBRARY = "libc++";
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VoxExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = VoxExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.unsaturated.Vox.VoxExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SKIP_INSTALL = YES;
+				STRIP_STYLE = debugging;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INCLUDE_PATHS = VoxExtension/DSP;
+				SWIFT_OBJC_BRIDGING_HEADER = "VoxExtension/Common/VoxExtension-Bridging-Header.h";
+				SWIFT_OBJC_INTEROP_MODE = objcxx;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				USER_HEADER_SEARCH_PATHS = (
+					VoxExtension/DSP,
+					VoxCore/include,
+					VoxCore,
+					"$(PROJECT_DIR)",
+				);
+				XROS_DEPLOYMENT_TARGET = 2.2;
+			};
+			name = Release;
+		};
+		E767E9A12DD8678D0071B40C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++23";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 329WL2Q6W9;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = c17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OBJC_INTEROP_MODE = objcxx;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		E767E9A22DD8678D0071B40C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++23";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 329WL2Q6W9;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = c17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OBJC_INTEROP_MODE = objcxx;
+			};
+			name = Release;
+		};
+		E767E9A52DD8678D0071B40C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Vox/Vox.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Vox/Preview Content\"";
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Vox;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					AudioToolbox,
+					"-framework",
+					AVFoundation,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.unsaturated.Vox;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				XROS_DEPLOYMENT_TARGET = 2.2;
+			};
+			name = Debug;
+		};
+		E767E9A62DD8678D0071B40C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Vox/Vox.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Vox/Preview Content\"";
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Vox;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"-framework",
+					AudioToolbox,
+					"-framework",
+					AVFoundation,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.unsaturated.Vox;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				XROS_DEPLOYMENT_TARGET = 2.2;
+			};
+			name = Release;
+		};
+		E767E9A82DD8678D0071B40C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "Developer ID Application: Mark Pauley (329WL2Q6W9)";
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 329WL2Q6W9;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.unsaturated.VoxTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_INCLUDE_PATHS = VoxExtension/DSP;
+				SWIFT_OBJC_BRIDGING_HEADER = "VoxExtension/Common/VoxExtension-Bridging-Header.h";
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Vox.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Vox";
+				USER_HEADER_SEARCH_PATHS = (
+					VoxExtension/DSP,
+					VoxCore/include,
+					VoxCore,
+					"$(PROJECT_DIR)",
+				);
+				XROS_DEPLOYMENT_TARGET = 2.2;
+			};
+			name = Debug;
+		};
+		E767E9A92DD8678D0071B40C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "Developer ID Application: Mark Pauley (329WL2Q6W9)";
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 329WL2Q6W9;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.unsaturated.VoxTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_INCLUDE_PATHS = VoxExtension/DSP;
+				SWIFT_OBJC_BRIDGING_HEADER = "VoxExtension/Common/VoxExtension-Bridging-Header.h";
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Vox.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Vox";
+				USER_HEADER_SEARCH_PATHS = (
+					VoxExtension/DSP,
+					VoxCore/include,
+					VoxCore,
+					"$(PROJECT_DIR)",
+				);
+				XROS_DEPLOYMENT_TARGET = 2.2;
+			};
+			name = Release;
+		};
+		E767E9AB2DD8678D0071B40C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "Developer ID Application: Mark Pauley (329WL2Q6W9)";
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 329WL2Q6W9;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.unsaturated.VoxUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_TARGET_NAME = Vox;
+				XROS_DEPLOYMENT_TARGET = 2.2;
+			};
+			name = Debug;
+		};
+		E767E9AC2DD8678D0071B40C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "Developer ID Application: Mark Pauley (329WL2Q6W9)";
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 329WL2Q6W9;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.unsaturated.VoxUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_TARGET_NAME = Vox;
+				XROS_DEPLOYMENT_TARGET = 2.2;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		E72CA3032DD919F4007F73D0 /* Build configuration list for PBXNativeTarget "VoxCore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E72CA3042DD919F4007F73D0 /* Debug */,
+				E72CA3052DD919F4007F73D0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E72CA3072DD919F4007F73D0 /* Build configuration list for PBXNativeTarget "VoxCoreTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E72CA3082DD919F4007F73D0 /* Debug */,
+				E72CA3092DD919F4007F73D0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E767E92E2DD8678C0071B40C /* Build configuration list for PBXProject "Vox" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E767E9A12DD8678D0071B40C /* Debug */,
+				E767E9A22DD8678D0071B40C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E767E99D2DD8678D0071B40C /* Build configuration list for PBXNativeTarget "VoxExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E767E99E2DD8678D0071B40C /* Debug */,
+				E767E99F2DD8678D0071B40C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E767E9A42DD8678D0071B40C /* Build configuration list for PBXNativeTarget "Vox" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E767E9A52DD8678D0071B40C /* Debug */,
+				E767E9A62DD8678D0071B40C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E767E9A72DD8678D0071B40C /* Build configuration list for PBXNativeTarget "VoxTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E767E9A82DD8678D0071B40C /* Debug */,
+				E767E9A92DD8678D0071B40C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E767E9AA2DD8678D0071B40C /* Build configuration list for PBXNativeTarget "VoxUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E767E9AB2DD8678D0071B40C /* Debug */,
+				E767E9AC2DD8678D0071B40C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E767E92B2DD8678C0071B40C /* Project object */;
+}

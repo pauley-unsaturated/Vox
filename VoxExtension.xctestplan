@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "21841B89-07F2-4977-A692-EB8A88777BCC",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:Vox.xcodeproj",
+        "identifier" : "E767E95B2DD8678D0071B40C",
+        "name" : "VoxTests"
+      }
+    }
+  ],
+  "version" : 1
+}

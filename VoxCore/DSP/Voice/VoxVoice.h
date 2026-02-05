@@ -1,0 +1,275 @@
+//
+//  VoxVoice.h
+//  VoxCore
+//
+//  Vox Pulsar Synthesis Voice
+//  Combines PulsarOscillator + FormantFilter + ADSR Envelope
+//
+
+#pragma once
+
+#ifdef __cplusplus
+
+#include "PulsarOscillator.h"
+#include "FormantFilter.h"
+#include "ADSREnvelope.h"
+#include <cmath>
+#include <algorithm>
+
+// Voice parameters structure
+struct VoxVoiceParameters {
+    // Master
+    double masterVolume = 1.0;       // 0.0 to 1.0
+    
+    // Pulsar Oscillator
+    double dutyCycle = 0.2;          // 0.01 to 1.0
+    int pulsaretShape = 1;           // 0=Gaussian, 1=RaisedCosine, 2=Sine, 3=Triangle
+    
+    // Formant Filter
+    double formant1Freq = 800.0;     // Hz
+    double formant2Freq = 1200.0;    // Hz
+    double formant1Q = 10.0;         // Q factor
+    double formant2Q = 10.0;         // Q factor
+    double vowelMorph = 0.0;         // 0.0 to 1.0 (A-E-I-O-U)
+    double formantMix = 1.0;         // 0.0 = dry, 1.0 = full formant
+    bool useVowelMorph = true;       // Use vowel morph or manual formants
+    
+    // Amp Envelope
+    double ampAttack = 0.01;         // seconds
+    double ampDecay = 0.1;           // seconds
+    double ampSustain = 0.7;         // 0.0 to 1.0
+    double ampRelease = 0.3;         // seconds
+    
+    // Pitch
+    double pitchBendSemitones = 0.0; // -12 to +12
+    double detuneHz = 0.0;           // Fine detune in Hz
+    
+    // Glide/Portamento
+    bool glideEnabled = false;
+    double glideTime = 0.1;          // seconds
+};
+
+class VoxVoice {
+public:
+    VoxVoice(double sampleRate = 44100.0)
+        : mSampleRate(sampleRate)
+        , mPulsarOsc(sampleRate)
+        , mFormantFilter(sampleRate)
+        , mAmpEnvelope(sampleRate)
+        , mCurrentNote(-1)
+        , mTargetNote(-1)
+        , mCurrentFrequency(440.0)
+        , mTargetFrequency(440.0)
+        , mGlideCoeff(1.0)
+        , mVelocity(1.0)
+        , mNoteOn(false)
+    {
+        // Initialize with default parameters
+        setParameters(VoxVoiceParameters());
+    }
+    
+    void setSampleRate(double sampleRate) {
+        mSampleRate = sampleRate;
+        mPulsarOsc.setSampleRate(sampleRate);
+        mFormantFilter.setSampleRate(sampleRate);
+        mAmpEnvelope.setSampleRate(sampleRate);
+        updateGlideCoeff();
+    }
+    
+    void setParameters(const VoxVoiceParameters& params) {
+        mParams = params;
+        
+        // Apply to pulsar oscillator
+        mPulsarOsc.setDutyCycle(params.dutyCycle);
+        mPulsarOsc.setShape(static_cast<PulsarOscillator::Shape>(params.pulsaretShape));
+        
+        // Apply to formant filter
+        if (params.useVowelMorph) {
+            mFormantFilter.setVowelMorph(params.vowelMorph);
+        } else {
+            mFormantFilter.setFormant1Frequency(params.formant1Freq);
+            mFormantFilter.setFormant2Frequency(params.formant2Freq);
+        }
+        mFormantFilter.setFormant1Q(params.formant1Q);
+        mFormantFilter.setFormant2Q(params.formant2Q);
+        
+        // Calculate formant mix gains
+        double formantGain = params.formantMix;
+        double dryGain = 1.0 - params.formantMix;
+        mFormantFilter.setFormant1Gain(formantGain);
+        mFormantFilter.setFormant2Gain(formantGain * 0.7);  // F2 slightly lower
+        mFormantFilter.setDryGain(dryGain);
+        
+        // Apply to envelope
+        mAmpEnvelope.setAttackTime(params.ampAttack);
+        mAmpEnvelope.setDecayTime(params.ampDecay);
+        mAmpEnvelope.setSustainLevel(params.ampSustain);
+        mAmpEnvelope.setReleaseTime(params.ampRelease);
+        
+        // Update glide coefficient
+        updateGlideCoeff();
+    }
+    
+    VoxVoiceParameters getParameters() const {
+        return mParams;
+    }
+    
+    // Note on with velocity (0.0 to 1.0)
+    void noteOn(int noteNumber, double velocity = 1.0) {
+        mVelocity = std::max(0.0, std::min(1.0, velocity));
+        mTargetNote = noteNumber;
+        mTargetFrequency = noteToFrequency(noteNumber);
+        
+        // Apply pitch bend
+        if (std::abs(mParams.pitchBendSemitones) > 0.001) {
+            mTargetFrequency *= std::pow(2.0, mParams.pitchBendSemitones / 12.0);
+        }
+        
+        // Apply detune
+        mTargetFrequency += mParams.detuneHz;
+        
+        // Handle glide
+        if (!mParams.glideEnabled || mCurrentNote < 0) {
+            // No glide or first note - jump to frequency
+            mCurrentFrequency = mTargetFrequency;
+            mCurrentNote = noteNumber;
+        }
+        // else: glide will happen in process()
+        
+        mPulsarOsc.setFrequency(mCurrentFrequency);
+        mAmpEnvelope.noteOn();
+        mNoteOn = true;
+    }
+    
+    // Note off
+    void noteOff(int noteNumber = -1) {
+        // Only release if this is the current note (or no note specified)
+        if (noteNumber < 0 || noteNumber == mCurrentNote || noteNumber == mTargetNote) {
+            mAmpEnvelope.noteOff();
+            mNoteOn = false;
+        }
+    }
+    
+    // Set pitch bend in semitones
+    void setPitchBend(double semitones) {
+        mParams.pitchBendSemitones = std::max(-12.0, std::min(12.0, semitones));
+        
+        // Recalculate target frequency if note is playing
+        if (mTargetNote >= 0) {
+            mTargetFrequency = noteToFrequency(mTargetNote);
+            mTargetFrequency *= std::pow(2.0, mParams.pitchBendSemitones / 12.0);
+            mTargetFrequency += mParams.detuneHz;
+        }
+    }
+    
+    // Check if voice is active (making sound)
+    bool isActive() const {
+        return mAmpEnvelope.getState() != ADSREnvelope::State::IDLE;
+    }
+    
+    // Reset voice
+    void reset() {
+        mPulsarOsc.reset();
+        mFormantFilter.reset();
+        mAmpEnvelope.reset();
+        mCurrentNote = -1;
+        mTargetNote = -1;
+        mNoteOn = false;
+    }
+    
+    // Process one sample
+    double process() {
+        // Handle glide
+        if (mParams.glideEnabled && std::abs(mCurrentFrequency - mTargetFrequency) > 0.1) {
+            mCurrentFrequency += (mTargetFrequency - mCurrentFrequency) * mGlideCoeff;
+            mPulsarOsc.setFrequency(mCurrentFrequency);
+        } else if (std::abs(mCurrentFrequency - mTargetFrequency) > 0.1) {
+            // Not gliding but frequency mismatch (pitch bend change)
+            mCurrentFrequency = mTargetFrequency;
+            mPulsarOsc.setFrequency(mCurrentFrequency);
+        }
+        
+        // Update current note when glide completes
+        if (mParams.glideEnabled && mTargetNote != mCurrentNote) {
+            if (std::abs(mCurrentFrequency - mTargetFrequency) < 0.1) {
+                mCurrentNote = mTargetNote;
+            }
+        }
+        
+        // Generate pulsar signal
+        double signal = mPulsarOsc.process();
+        
+        // Apply formant filter
+        signal = mFormantFilter.process(signal);
+        
+        // Apply amplitude envelope
+        double envValue = mAmpEnvelope.process();
+        signal *= envValue;
+        
+        // Apply velocity and master volume
+        signal *= mVelocity * mParams.masterVolume;
+        
+        return signal;
+    }
+    
+    // Process a block of samples
+    void processBlock(double* output, int numSamples) {
+        for (int i = 0; i < numSamples; ++i) {
+            output[i] = process();
+        }
+    }
+    
+    // Process and add to buffer (for mixing multiple voices)
+    void processBlockAdd(double* output, int numSamples) {
+        for (int i = 0; i < numSamples; ++i) {
+            output[i] += process();
+        }
+    }
+    
+    // Get current envelope state
+    ADSREnvelope::State getEnvelopeState() const {
+        return mAmpEnvelope.getState();
+    }
+    
+    // Get current note
+    int getCurrentNote() const { return mCurrentNote; }
+    
+private:
+    double noteToFrequency(int noteNumber) const {
+        // MIDI note to frequency: f = 440 * 2^((n-69)/12)
+        return 440.0 * std::pow(2.0, (noteNumber - 69) / 12.0);
+    }
+    
+    void updateGlideCoeff() {
+        // Calculate coefficient for exponential glide
+        // Coefficient determines how quickly we approach target frequency
+        if (mParams.glideTime > 0.001) {
+            double glideTimeSamples = mParams.glideTime * mSampleRate;
+            // We want to reach ~99% of target in glideTime
+            mGlideCoeff = 1.0 - std::exp(-5.0 / glideTimeSamples);
+        } else {
+            mGlideCoeff = 1.0;  // Instant (no glide)
+        }
+    }
+    
+    double mSampleRate;
+    
+    // Components
+    PulsarOscillator mPulsarOsc;
+    FormantFilter mFormantFilter;
+    ADSREnvelope mAmpEnvelope;
+    
+    // Parameters
+    VoxVoiceParameters mParams;
+    
+    // State
+    int mCurrentNote;
+    int mTargetNote;
+    double mCurrentFrequency;
+    double mTargetFrequency;
+    double mGlideCoeff;
+    double mVelocity;
+    bool mNoteOn;
+};
+
+#endif // __cplusplus

@@ -1,0 +1,31 @@
+{
+  "configurations" : [
+    {
+      "id" : "FDF2CDCE-888E-4FCF-A238-8DBA93D98994",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:Vox.xcodeproj",
+        "identifier" : "E72CA2F32DD919F4007F73D0",
+        "name" : "VoxCoreTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:Vox.xcodeproj",
+        "identifier" : "E767E95B2DD8678D0071B40C",
+        "name" : "VoxTests"
+      }
+    }
+  ],
+  "version" : 1
+}
