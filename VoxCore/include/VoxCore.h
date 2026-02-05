@@ -52,7 +52,8 @@
 #include "GlobalModulation.h"
 
 // Phase 5: Stochastic Cloud Engine
-#include "StochasticDistributions.h"
+// StochasticDistribution.h is included by StochasticCloud.h
+#include "StochasticCloud.h"
 
 // Utility functions
 #include "DSPUtilities.h"

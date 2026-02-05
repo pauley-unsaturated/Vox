@@ -15,7 +15,7 @@ struct StochasticDistributionsTests {
     
     @Test("Gaussian distribution produces values centered around 0")
     func testGaussianCentering() {
-        var gen = StochasticGenerator(42) // Fixed seed for reproducibility
+        var gen = StochasticDistribution(42) // Fixed seed for reproducibility
         let spread = 10.0
         
         var sum = 0.0
@@ -32,7 +32,7 @@ struct StochasticDistributionsTests {
     
     @Test("Gaussian distribution respects spread parameter")
     func testGaussianSpread() {
-        var gen = StochasticGenerator(42)
+        var gen = StochasticDistribution(42)
         let spread = 25.0
         
         var values: [Double] = []
@@ -53,7 +53,7 @@ struct StochasticDistributionsTests {
     
     @Test("Gaussian distribution - 99.7% within 3 sigma")
     func testGaussian3Sigma() {
-        var gen = StochasticGenerator(123)
+        var gen = StochasticDistribution(123)
         let spread = 10.0
         
         var withinRange = 0
@@ -75,7 +75,7 @@ struct StochasticDistributionsTests {
     
     @Test("Uniform distribution produces values within range")
     func testUniformRange() {
-        var gen = StochasticGenerator(42)
+        var gen = StochasticDistribution(42)
         let spread = 50.0
         
         for _ in 0..<1000 {
@@ -87,7 +87,7 @@ struct StochasticDistributionsTests {
     
     @Test("Uniform distribution is approximately uniform")
     func testUniformDistribution() {
-        var gen = StochasticGenerator(42)
+        var gen = StochasticDistribution(42)
         let spread = 1.0
         
         // Divide range into bins and count
@@ -114,7 +114,7 @@ struct StochasticDistributionsTests {
     
     @Test("Cauchy distribution produces values")
     func testCauchyProducesValues() {
-        var gen = StochasticGenerator(42)
+        var gen = StochasticDistribution(42)
         let spread = 10.0
         
         var values: [Double] = []
@@ -128,7 +128,7 @@ struct StochasticDistributionsTests {
     
     @Test("Cauchy distribution is clamped to ±10*spread")
     func testCauchyClamping() {
-        var gen = StochasticGenerator(42)
+        var gen = StochasticDistribution(42)
         let spread = 5.0
         let maxAllowed = 10.0 * spread
         
@@ -141,8 +141,8 @@ struct StochasticDistributionsTests {
     
     @Test("Cauchy distribution has heavier tails than Gaussian")
     func testCauchyHeavyTails() {
-        var genCauchy = StochasticGenerator(42)
-        var genGaussian = StochasticGenerator(42)
+        var genCauchy = StochasticDistribution(42)
+        var genGaussian = StochasticDistribution(42)
         let spread = 10.0
         let numSamples = 10000
         
@@ -168,14 +168,14 @@ struct StochasticDistributionsTests {
     
     @Test("Poisson distribution produces values")
     func testPoissonProducesValues() {
-        var gen = StochasticGenerator(42)
+        var gen = StochasticDistribution(42)
         let spread = 5.0
         
         var hasPositive = false
         var hasNegative = false
         
         for _ in 0..<1000 {
-            let value = gen.generatePoisson(spread)
+            let value = gen.generatePoissonCentered(spread)
             if value > 0 { hasPositive = true }
             if value < 0 { hasNegative = true }
         }
@@ -186,7 +186,7 @@ struct StochasticDistributionsTests {
     
     @Test("Poisson distribution is asymmetric (exponential-based)")
     func testPoissonAsymmetry() {
-        var gen = StochasticGenerator(42)
+        var gen = StochasticDistribution(42)
         let spread = 10.0
         let numSamples = 10000
         
@@ -194,7 +194,7 @@ struct StochasticDistributionsTests {
         var negative = 0
         
         for _ in 0..<numSamples {
-            let value = gen.generatePoisson(spread)
+            let value = gen.generatePoissonCentered(spread)
             if value > 0 { positive += 1 }
             else if value < 0 { negative += 1 }
         }
@@ -209,7 +209,7 @@ struct StochasticDistributionsTests {
     
     @Test("Generate function works with all distribution types")
     func testGenerateAllTypes() {
-        var gen = StochasticGenerator(42)
+        var gen = StochasticDistribution(42)
         let spread = 10.0
         
         let gaussianValue = gen.generate(.GAUSSIAN, spread)
@@ -223,7 +223,7 @@ struct StochasticDistributionsTests {
     
     @Test("Generate with zero spread returns zero")
     func testGenerateZeroSpread() {
-        var gen = StochasticGenerator(42)
+        var gen = StochasticDistribution(42)
         
         #expect(gen.generate(.GAUSSIAN, 0.0) == 0.0, "Zero spread Gaussian should return 0")
         #expect(gen.generate(.UNIFORM, 0.0) == 0.0, "Zero spread Uniform should return 0")
@@ -235,8 +235,8 @@ struct StochasticDistributionsTests {
     
     @Test("Same seed produces same sequence")
     func testSeedReproducibility() {
-        var gen1 = StochasticGenerator(12345)
-        var gen2 = StochasticGenerator(12345)
+        var gen1 = StochasticDistribution(12345)
+        var gen2 = StochasticDistribution(12345)
         
         for _ in 0..<100 {
             let v1 = gen1.generateGaussian(10.0)
@@ -247,8 +247,8 @@ struct StochasticDistributionsTests {
     
     @Test("Different seeds produce different sequences")
     func testDifferentSeeds() {
-        var gen1 = StochasticGenerator(11111)
-        var gen2 = StochasticGenerator(22222)
+        var gen1 = StochasticDistribution(11111)
+        var gen2 = StochasticDistribution(22222)
         
         var sameCount = 0
         for _ in 0..<100 {
