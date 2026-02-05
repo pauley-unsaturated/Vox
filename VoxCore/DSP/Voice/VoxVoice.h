@@ -198,8 +198,13 @@ public:
             mTargetFrequency *= std::pow(2.0, mParams.pitchBendSemitones / 12.0);
         }
         
-        // Apply detune
+        // Apply detune (Hz)
         mTargetFrequency += mParams.detuneHz;
+        
+        // Phase 3.1: Apply detune offset (cents)
+        if (std::abs(mDetuneOffset) > 0.001) {
+            mTargetFrequency *= std::pow(2.0, mDetuneOffset / 1200.0);
+        }
         
         // Handle glide
         if (!mParams.glideEnabled || mCurrentNote < 0) {
@@ -210,13 +215,21 @@ public:
         // else: glide will happen in process()
         
         mPulsarOsc.setFrequency(mCurrentFrequency);
-        mAmpEnvelope.noteOn();
-        mModEnvelope.noteOn();  // Trigger mod envelope (Phase 2.2)
         
-        // Retrigger LFO if configured
-        if (mParams.lfoRetrigger) {
-            mLFO.retrigger();
+        // Phase 3.2: Handle time offset (delay before envelope triggers)
+        mTimeOffsetSamples = mTimeOffsetMs * mSampleRate / 1000.0;
+        mTimeOffsetCounter = static_cast<int>(std::abs(mTimeOffsetSamples));
+        
+        if (mTimeOffsetCounter <= 0) {
+            // No time offset - trigger immediately
+            mAmpEnvelope.noteOn();
+            mModEnvelope.noteOn();
+            
+            if (mParams.lfoRetrigger) {
+                mLFO.retrigger();
+            }
         }
+        // else: envelope will be triggered in process() after offset countdown
         
         // Reset aftertouch on new note (Phase 2.5)
         mAftertouch = 0.0;
@@ -263,10 +276,25 @@ public:
         mNoteOn = false;
         mCurrentLFOValue = 0.0;
         mCurrentModEnvValue = 0.0;
+        mTimeOffsetCounter = 0;  // Phase 3.2
     }
     
     // Process one sample
     double process() {
+        // Phase 3.2: Handle time offset countdown
+        if (mTimeOffsetCounter > 0) {
+            mTimeOffsetCounter--;
+            if (mTimeOffsetCounter == 0) {
+                // Time offset complete - trigger envelopes now
+                mAmpEnvelope.noteOn();
+                mModEnvelope.noteOn();
+                
+                if (mParams.lfoRetrigger) {
+                    mLFO.retrigger();
+                }
+            }
+        }
+        
         // Handle glide
         if (mParams.glideEnabled && std::abs(mCurrentFrequency - mTargetFrequency) > 0.1) {
             mCurrentFrequency += (mTargetFrequency - mCurrentFrequency) * mGlideCoeff;
@@ -321,12 +349,15 @@ public:
         mPulsarOsc.setDutyCycle(modulatedDuty);
         
         // Calculate formant modulation (including aftertouch - Phase 2.5)
+        // Phase 3.3: Include formant offset from constellation
         double formant1Mod = (mCurrentLFOValue * mParams.lfoToFormant1 * effectiveLFOAmount) +
                              (effectiveModEnv * mParams.modEnvToFormant1) +
-                             (mAftertouch * mParams.aftertouchToFormant1);
+                             (mAftertouch * mParams.aftertouchToFormant1) +
+                             mFormantOffsetHz;  // Constellation offset
         double formant2Mod = (mCurrentLFOValue * mParams.lfoToFormant2 * effectiveLFOAmount) +
                              (effectiveModEnv * mParams.modEnvToFormant2) +
-                             (mAftertouch * mParams.aftertouchToFormant2);
+                             (mAftertouch * mParams.aftertouchToFormant2) +
+                             (mFormantOffsetHz * 0.8);  // Slightly less offset for F2
         
         // Apply formant modulation (only if using manual formants, not vowel morph)
         if (!mParams.useVowelMorph) {
@@ -407,6 +438,33 @@ public:
     }
     double getAftertouch() const { return mAftertouch; }
     
+    // ═══════════════════════════════════════════════════════════════
+    // Phase 3: Voice Constellation Parameters
+    // ═══════════════════════════════════════════════════════════════
+    
+    // Phase 3.1: Detune offset in cents
+    void setDetuneOffset(double cents) { mDetuneOffset = cents; }
+    double getDetuneOffset() const { return mDetuneOffset; }
+    
+    // Phase 3.2: Time offset in milliseconds (delay before note triggers)
+    void setTimeOffset(double ms) { mTimeOffsetMs = ms; }
+    double getTimeOffset() const { return mTimeOffsetMs; }
+    
+    // Phase 3.3: Formant offset in Hz
+    void setFormantOffset(double hz) { mFormantOffsetHz = hz; }
+    double getFormantOffset() const { return mFormantOffsetHz; }
+    
+    // Phase 3.4: Pan position (-1 = left, 0 = center, +1 = right)
+    void setPan(double pan) { mPan = std::max(-1.0, std::min(1.0, pan)); }
+    double getPan() const { return mPan; }
+    
+    // Phase 3.5: LFO phase offset (0.0 to 1.0, represents 0-360°)
+    void setLFOPhaseOffset(double offset) {
+        mLFOPhaseOffset = std::fmod(std::max(0.0, offset), 1.0);
+        mLFO.setPhaseOffset(mLFOPhaseOffset);
+    }
+    double getLFOPhaseOffset() const { return mLFOPhaseOffset; }
+    
 private:
     double noteToFrequency(int noteNumber) const {
         // MIDI note to frequency: f = 440 * 2^((n-69)/12)
@@ -450,6 +508,15 @@ private:
     double mCurrentLFOValue = 0.0;
     double mCurrentModEnvValue = 0.0;  // Phase 2.2
     double mAftertouch = 0.0;          // Phase 2.5
+    
+    // Phase 3: Constellation offsets
+    double mDetuneOffset = 0.0;      // cents
+    double mTimeOffsetMs = 0.0;      // milliseconds
+    double mTimeOffsetSamples = 0.0; // cached sample count
+    int mTimeOffsetCounter = 0;      // countdown for time offset
+    double mFormantOffsetHz = 0.0;   // Hz
+    double mPan = 0.0;               // -1 to +1
+    double mLFOPhaseOffset = 0.0;    // 0 to 1
 };
 
 #endif // __cplusplus

@@ -5,6 +5,8 @@
 //  Voice Pool Manager for Polyphonic Synthesis
 //  Manages VoxVoice instances and handles MIDI note routing
 //
+//  Phase 3: Voice Constellation - choir-like voice spreading
+//
 
 #pragma once
 
@@ -14,6 +16,7 @@
 #include "VoxVoice.h"
 #include <array>
 #include <memory>
+#include <random>
 
 class VoicePool {
 public:
@@ -26,6 +29,14 @@ public:
         Quietest   // Steal the voice with lowest velocity
     };
     
+    // Phase 3.6: Constellation modes
+    enum class ConstellationMode {
+        Unison,    // All spreads = 0 (tight, fat sound)
+        Ensemble,  // Subtle spreads (string section feel)
+        Choir,     // Maximum spreads (individual voices audible)
+        Random     // Randomize offsets per note
+    };
+    
     // Constructor
     VoicePool(int voiceCount = 8, double sampleRate = 44100.0)
         : mVoiceCount(std::min(voiceCount, kMaxVoices))
@@ -33,12 +44,22 @@ public:
         , mAllocator(voiceCount)
         , mStealingEnabled(true)
         , mStealingMode(StealingMode::Oldest)
+        , mConstellationMode(ConstellationMode::Unison)
+        , mDetuneSpread(0.0)
+        , mTimeOffsetSpread(0.0)
+        , mFormantOffsetSpread(0.0)
+        , mPanSpread(0.0)
+        , mLFOPhaseSpread(0.0)
+        , mUnisonVoices(1)
+        , mRandomGenerator(std::random_device{}())
+        , mRandomDist(-1.0, 1.0)
     {
         // Initialize all voices with their index for LFO phase spreading
         for (int i = 0; i < kMaxVoices; ++i) {
             mVoices[i] = std::make_unique<VoxVoice>(sampleRate);
             mVoices[i]->setVoiceIndex(i);  // Set voice index for phase spreading
             mVoiceVelocities[i] = 0.0;
+            mUnisonGroupNote[i] = -1;  // Track which note this voice is part of (for unison)
         }
     }
     
@@ -50,16 +71,88 @@ public:
         }
     }
     
-    // Set parameters for all voices
+    // Set parameters for all voices (applies constellation spreads)
     void setParameters(const VoxVoiceParameters& params) {
         mParameters = params;
-        for (int i = 0; i < mVoiceCount; ++i) {
-            mVoices[i]->setParameters(params);
-        }
+        applyConstellationToAllVoices();
     }
     
     VoxVoiceParameters getParameters() const {
         return mParameters;
+    }
+    
+    // ═══════════════════════════════════════════════════════════════
+    // Phase 3: Voice Constellation Parameters
+    // ═══════════════════════════════════════════════════════════════
+    
+    // Phase 3.1: Detune Spread (0-50 cents)
+    void setDetuneSpread(double cents) {
+        mDetuneSpread = std::max(0.0, std::min(50.0, cents));
+        applyConstellationToAllVoices();
+    }
+    
+    double getDetuneSpread() const {
+        return mDetuneSpread;
+    }
+    
+    // Phase 3.2: Time Offset Spread (0-50 ms)
+    void setTimeOffsetSpread(double ms) {
+        mTimeOffsetSpread = std::max(0.0, std::min(50.0, ms));
+        applyConstellationToAllVoices();
+    }
+    
+    double getTimeOffsetSpread() const {
+        return mTimeOffsetSpread;
+    }
+    
+    // Phase 3.3: Formant Offset Spread (0-200 Hz)
+    void setFormantOffsetSpread(double hz) {
+        mFormantOffsetSpread = std::max(0.0, std::min(200.0, hz));
+        applyConstellationToAllVoices();
+    }
+    
+    double getFormantOffsetSpread() const {
+        return mFormantOffsetSpread;
+    }
+    
+    // Phase 3.4: Pan Spread (0-1.0)
+    void setPanSpread(double spread) {
+        mPanSpread = std::max(0.0, std::min(1.0, spread));
+        applyConstellationToAllVoices();
+    }
+    
+    double getPanSpread() const {
+        return mPanSpread;
+    }
+    
+    // Phase 3.5: LFO Phase Spread (0-360 degrees)
+    void setLFOPhaseSpread(double degrees) {
+        mLFOPhaseSpread = std::max(0.0, std::min(360.0, degrees));
+        applyConstellationToAllVoices();
+    }
+    
+    double getLFOPhaseSpread() const {
+        return mLFOPhaseSpread;
+    }
+    
+    // Phase 3.6: Constellation Mode (acts as preset)
+    void setConstellationMode(ConstellationMode mode) {
+        mConstellationMode = mode;
+        applyConstellationModePreset();  // Apply preset values
+        applyConstellationToAllVoices();
+    }
+    
+    ConstellationMode getConstellationMode() const {
+        return mConstellationMode;
+    }
+    
+    // Phase 3.7: Unison Voice Count (1-8)
+    void setUnisonVoices(int count) {
+        mUnisonVoices = std::max(1, std::min(8, count));
+    }
+    
+    int getUnisonVoices() const {
+        return mUnisonVoices;
     }
     
     // Get voice count
@@ -114,51 +207,65 @@ public:
     }
     
     // Note on - returns voice index or -1 if no voice available
+    // With unison voices > 1, triggers multiple voices for a single note
     int noteOn(int32_t note, double velocity) {
         // Check if this note is already playing - retrigger it
         int existingVoice = mAllocator.findVoicePlayingNote(note);
         if (existingVoice >= 0) {
-            mVoices[existingVoice]->noteOn(note, velocity);
-            mVoiceVelocities[existingVoice] = velocity;
+            // Retrigger all unison voices for this note
+            for (int i = 0; i < mVoiceCount; ++i) {
+                if (mUnisonGroupNote[i] == note) {
+                    mVoices[i]->noteOn(note, velocity);
+                    mVoiceVelocities[i] = velocity;
+                }
+            }
             return existingVoice;
         }
         
-        // Try to allocate a new voice
-        int voiceIndex = mAllocator.allocate(note);
+        // For unison mode, allocate multiple voices
+        int firstVoiceIndex = -1;
+        int voicesAllocated = 0;
         
-        // If no free voice and stealing is enabled, steal one
-        if (voiceIndex < 0 && mStealingEnabled) {
-            voiceIndex = stealVoice();
-            if (voiceIndex >= 0) {
-                // Deallocate the stolen voice first
-                mAllocator.deallocate(voiceIndex);
-                // Then reallocate it for the new note
-                mAllocator.allocate(note);
-                // The allocator will give us a different index potentially,
-                // so we need to find the right one
-                voiceIndex = mAllocator.findVoicePlayingNote(note);
-                if (voiceIndex < 0) {
-                    // Fallback - just use the stolen voice directly
-                    voiceIndex = stealVoice();
+        for (int u = 0; u < mUnisonVoices && voicesAllocated < mVoiceCount; ++u) {
+            int voiceIndex = mAllocator.allocate(note);
+            
+            // If no free voice and stealing is enabled, steal one
+            if (voiceIndex < 0 && mStealingEnabled) {
+                voiceIndex = stealVoice();
+                if (voiceIndex >= 0) {
+                    mAllocator.deallocate(voiceIndex);
+                    voiceIndex = mAllocator.allocate(note);
+                    if (voiceIndex < 0) {
+                        voiceIndex = stealVoice();
+                    }
                 }
+            }
+            
+            if (voiceIndex >= 0) {
+                if (firstVoiceIndex < 0) firstVoiceIndex = voiceIndex;
+                
+                mVoices[voiceIndex]->reset();
+                applyConstellationToVoice(voiceIndex, u, mUnisonVoices);
+                mVoices[voiceIndex]->noteOn(note, velocity);
+                mVoiceVelocities[voiceIndex] = velocity;
+                mUnisonGroupNote[voiceIndex] = note;
+                voicesAllocated++;
+            } else {
+                break;  // No more voices available
             }
         }
         
-        if (voiceIndex >= 0) {
-            mVoices[voiceIndex]->reset();  // Clean slate for stolen voice
-            mVoices[voiceIndex]->setParameters(mParameters);
-            mVoices[voiceIndex]->noteOn(note, velocity);
-            mVoiceVelocities[voiceIndex] = velocity;
-        }
-        return voiceIndex;
+        return firstVoiceIndex;
     }
     
-    // Note off
+    // Note off - releases all unison voices playing this note
     void noteOff(int32_t note) {
-        int voiceIndex = mAllocator.findVoicePlayingNote(note);
-        if (voiceIndex >= 0) {
-            mVoices[voiceIndex]->noteOff(note);
-            // Don't deallocate yet - wait for envelope to reach idle
+        // Release all voices in the unison group for this note
+        for (int i = 0; i < mVoiceCount; ++i) {
+            if (mUnisonGroupNote[i] == note) {
+                mVoices[i]->noteOff(note);
+                // Don't deallocate yet - wait for envelope to reach idle
+            }
         }
     }
     
@@ -206,6 +313,7 @@ public:
                 // Return voice to pool
                 if (!mVoices[i]->isActive()) {
                     mAllocator.deallocate(i);
+                    mUnisonGroupNote[i] = -1;
                 }
             }
         }
@@ -220,12 +328,35 @@ public:
         }
     }
     
-    // Process stereo (mono voice to both channels)
+    // Process stereo with pan spread applied
     void processBlockStereo(double* left, double* right, int numSamples) {
-        for (int i = 0; i < numSamples; ++i) {
-            double sample = process();
-            left[i] = sample;
-            right[i] = sample;
+        for (int s = 0; s < numSamples; ++s) {
+            double leftSum = 0.0;
+            double rightSum = 0.0;
+            
+            for (int i = 0; i < mVoiceCount; ++i) {
+                if (mVoices[i]->isActive()) {
+                    double sample = mVoices[i]->process();
+                    
+                    // Apply pan (constant-power panning)
+                    double pan = mVoices[i]->getPan();  // -1 (left) to +1 (right)
+                    double panAngle = (pan + 1.0) * 0.25 * 3.14159265359;  // 0 to π/2
+                    double leftGain = std::cos(panAngle);
+                    double rightGain = std::sin(panAngle);
+                    
+                    leftSum += sample * leftGain;
+                    rightSum += sample * rightGain;
+                    
+                    // Check if voice has finished
+                    if (!mVoices[i]->isActive()) {
+                        mAllocator.deallocate(i);
+                        mUnisonGroupNote[i] = -1;
+                    }
+                }
+            }
+            
+            left[s] = leftSum;
+            right[s] = rightSum;
         }
     }
     
@@ -276,16 +407,134 @@ private:
         return quietest;
     }
     
+    // Get current spread values (mode presets modify these when set)
+    void getEffectiveSpreads(double& detune, double& timeOffset, double& formantOffset, 
+                            double& pan, double& lfoPhase) const {
+        // Just return the current spread values - mode presets set these when activated
+        detune = mDetuneSpread;
+        timeOffset = mTimeOffsetSpread;
+        formantOffset = mFormantOffsetSpread;
+        pan = mPanSpread;
+        lfoPhase = mLFOPhaseSpread;
+    }
+    
+    // Apply constellation mode as a preset that sets all spread values
+    void applyConstellationModePreset() {
+        switch (mConstellationMode) {
+            case ConstellationMode::Unison:
+                // All spreads = 0 (tight, fat)
+                mDetuneSpread = 0.0;
+                mTimeOffsetSpread = 0.0;
+                mFormantOffsetSpread = 0.0;
+                mPanSpread = 0.0;
+                mLFOPhaseSpread = 0.0;
+                break;
+                
+            case ConstellationMode::Ensemble:
+                // Subtle spreads (string section feel)
+                mDetuneSpread = 15.0;
+                mTimeOffsetSpread = 10.0;
+                mFormantOffsetSpread = 50.0;
+                mPanSpread = 0.4;
+                mLFOPhaseSpread = 45.0;
+                break;
+                
+            case ConstellationMode::Choir:
+                // Maximum spreads (individual voices audible)
+                mDetuneSpread = 50.0;
+                mTimeOffsetSpread = 50.0;
+                mFormantOffsetSpread = 200.0;
+                mPanSpread = 1.0;
+                mLFOPhaseSpread = 360.0;
+                break;
+                
+            case ConstellationMode::Random:
+                // Keep current values but randomize application
+                // Values stay as user set them
+                break;
+        }
+    }
+    
+    // Apply constellation settings to all voices
+    void applyConstellationToAllVoices() {
+        for (int i = 0; i < mVoiceCount; ++i) {
+            applyConstellationToVoice(i, i, mVoiceCount);
+        }
+    }
+    
+    // Apply constellation settings to a specific voice
+    // Uses the voice's pool index for consistent stereo/detune positioning
+    // unisonIndex/unisonCount are for distribution within unison groups
+    void applyConstellationToVoice(int voiceIndex, int unisonIndex, int unisonCount) {
+        if (voiceIndex < 0 || voiceIndex >= mVoiceCount) return;
+        
+        double detune, timeOffset, formantOffset, pan, lfoPhase;
+        getEffectiveSpreads(detune, timeOffset, formantOffset, pan, lfoPhase);
+        
+        // Calculate position in spread range (-1 to +1)
+        // Use the voice's pool index for consistent positioning (each "singer" has their spot)
+        double spreadPos;
+        double center = (mVoiceCount - 1) / 2.0;  // e.g., 3.5 for 8 voices
+        if (center > 0.0) {
+            spreadPos = (voiceIndex - center) / center;  // -1 to +1
+        } else {
+            spreadPos = 0.0;
+        }
+        
+        // Apply random variation for Random mode
+        if (mConstellationMode == ConstellationMode::Random) {
+            spreadPos = mRandomDist(mRandomGenerator);
+        }
+        
+        // Calculate and apply offsets
+        double detuneOffset = spreadPos * detune;
+        double timeOffsetValue = spreadPos * timeOffset;
+        double formantOffsetValue = spreadPos * formantOffset;
+        double panValue = spreadPos * pan;  // -1 to +1
+        
+        // LFO phase uses voice index for consistent distribution
+        double lfoPhaseOffset = (static_cast<double>(voiceIndex) / mVoiceCount) * lfoPhase / 360.0;
+        
+        if (mConstellationMode == ConstellationMode::Random) {
+            lfoPhaseOffset = std::abs(mRandomDist(mRandomGenerator)) * lfoPhase / 360.0;
+        }
+        
+        // Apply to voice parameters
+        VoxVoiceParameters voiceParams = mParameters;
+        voiceParams.lfoPhaseSpread = lfoPhaseOffset;
+        
+        mVoices[voiceIndex]->setParameters(voiceParams);
+        mVoices[voiceIndex]->setDetuneOffset(detuneOffset);
+        mVoices[voiceIndex]->setTimeOffset(timeOffsetValue);
+        mVoices[voiceIndex]->setFormantOffset(formantOffsetValue);
+        mVoices[voiceIndex]->setPan(panValue);
+        mVoices[voiceIndex]->setLFOPhaseOffset(lfoPhaseOffset);
+    }
+    
     int mVoiceCount;
     double mSampleRate;
     VoxVoiceParameters mParameters;
     
     std::array<std::unique_ptr<VoxVoice>, kMaxVoices> mVoices;
     std::array<double, kMaxVoices> mVoiceVelocities;
+    std::array<int32_t, kMaxVoices> mUnisonGroupNote;  // Track unison groups
     VoiceAllocator mAllocator;
     
     bool mStealingEnabled;
     StealingMode mStealingMode;
+    
+    // Phase 3: Constellation parameters
+    ConstellationMode mConstellationMode;
+    double mDetuneSpread;      // 0-50 cents
+    double mTimeOffsetSpread;  // 0-50 ms
+    double mFormantOffsetSpread;  // 0-200 Hz
+    double mPanSpread;         // 0-1.0 (0-100%)
+    double mLFOPhaseSpread;    // 0-360 degrees
+    int mUnisonVoices;         // 1-8
+    
+    // Random generator for Random mode
+    mutable std::mt19937 mRandomGenerator;
+    mutable std::uniform_real_distribution<double> mRandomDist;
 };
 
 #endif // __cplusplus
