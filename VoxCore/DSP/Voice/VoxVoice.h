@@ -73,6 +73,10 @@ struct VoxVoiceParameters {
     double modEnvToFormant1 = 0.0;   // Hz (unipolar: 0 to +amount)
     double modEnvToFormant2 = 0.0;   // Hz (unipolar: 0 to +amount)
     double modEnvToDutyCycle = 0.0;  // normalized (unipolar: 0 to +amount)
+    
+    // Velocity Sensitivity (Phase 2.4)
+    double velocitySensitivity = 1.0;  // 0.0 = no effect, 1.0 = full velocity scaling
+    double velocityToModEnv = 0.0;     // 0.0 = no effect, 1.0 = velocity fully scales mod env
 };
 
 class VoxVoice {
@@ -170,7 +174,16 @@ public:
     
     // Note on with velocity (0.0 to 1.0)
     void noteOn(int noteNumber, double velocity = 1.0) {
-        mVelocity = std::max(0.0, std::min(1.0, velocity));
+        double clampedVelocity = std::max(0.0, std::min(1.0, velocity));
+        
+        // Apply velocity sensitivity (Phase 2.4)
+        // At 0% sensitivity: effective velocity = 1.0 (no effect)
+        // At 100% sensitivity: effective velocity = velocity (full effect)
+        mVelocity = (1.0 - mParams.velocitySensitivity) + (clampedVelocity * mParams.velocitySensitivity);
+        
+        // Store raw velocity for mod envelope scaling
+        mRawVelocity = clampedVelocity;
+        
         mTargetNote = noteNumber;
         mTargetFrequency = noteToFrequency(noteNumber);
         
@@ -267,13 +280,19 @@ public:
         mCurrentModEnvValue = mModEnvelope.process();
         
         // ═══════════════════════════════════════════════════════════════
-        // Phase 2.3: Apply Modulation Routing
+        // Phase 2.3 & 2.4: Apply Modulation Routing
         // ═══════════════════════════════════════════════════════════════
+        
+        // Calculate effective mod envelope value with velocity scaling (Phase 2.4)
+        // At velocityToModEnv = 0: full mod env
+        // At velocityToModEnv = 1: mod env scaled by raw velocity
+        double velocityModScale = (1.0 - mParams.velocityToModEnv) + (mRawVelocity * mParams.velocityToModEnv);
+        double effectiveModEnv = mCurrentModEnvValue * velocityModScale;
         
         // Calculate pitch modulation (in semitones)
         // LFO is bipolar (-1 to +1), mod env is unipolar (0 to 1)
         double pitchModSemitones = (mCurrentLFOValue * mParams.lfoToPitch) + 
-                                   (mCurrentModEnvValue * mParams.modEnvToPitch);
+                                   (effectiveModEnv * mParams.modEnvToPitch);
         
         // Apply pitch modulation to frequency
         double modulatedFrequency = mCurrentFrequency;
@@ -284,15 +303,15 @@ public:
         
         // Calculate duty cycle modulation
         double dutyMod = (mCurrentLFOValue * mParams.lfoToDutyCycle) +
-                         (mCurrentModEnvValue * mParams.modEnvToDutyCycle);
+                         (effectiveModEnv * mParams.modEnvToDutyCycle);
         double modulatedDuty = std::max(0.01, std::min(1.0, mParams.dutyCycle + dutyMod));
         mPulsarOsc.setDutyCycle(modulatedDuty);
         
         // Calculate formant modulation
         double formant1Mod = (mCurrentLFOValue * mParams.lfoToFormant1) +
-                             (mCurrentModEnvValue * mParams.modEnvToFormant1);
+                             (effectiveModEnv * mParams.modEnvToFormant1);
         double formant2Mod = (mCurrentLFOValue * mParams.lfoToFormant2) +
-                             (mCurrentModEnvValue * mParams.modEnvToFormant2);
+                             (effectiveModEnv * mParams.modEnvToFormant2);
         
         // Apply formant modulation (only if using manual formants, not vowel morph)
         if (!mParams.useVowelMorph) {
@@ -404,6 +423,7 @@ private:
     double mTargetFrequency;
     double mGlideCoeff;
     double mVelocity;
+    double mRawVelocity = 1.0;  // Phase 2.4: Raw velocity for mod env scaling
     bool mNoteOn;
     int mVoiceIndex;
     double mCurrentLFOValue = 0.0;
