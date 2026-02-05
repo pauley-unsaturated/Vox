@@ -29,6 +29,7 @@
 
 // Polyphonic voice management
 #include "VoiceAllocator.h"
+#include "VoicePool.h"
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SUPPORTING COMPONENTS
