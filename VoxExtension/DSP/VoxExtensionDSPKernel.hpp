@@ -20,6 +20,15 @@
 
 #import "VoxExtensionParameterAddresses.h"
 #include <VoxCore/VoxCore.h>
+#import <os/log.h>
+
+// Debug logging for MIDI troubleshooting
+#define VOX_DEBUG 1
+#if VOX_DEBUG
+#define VOX_LOG(fmt, ...) os_log(OS_LOG_DEFAULT, "[Vox] " fmt, ##__VA_ARGS__)
+#else
+#define VOX_LOG(fmt, ...)
+#endif
 
 /*
  VoxExtensionDSPKernel
@@ -52,10 +61,12 @@ public:
     }
     
     void initialize(int channelCount, double inSampleRate) {
+        VOX_LOG("initialize() called: channels=%d sampleRate=%f", channelCount, inSampleRate);
         mSampleRate = inSampleRate;
         
         // Initialize VoxVoice
         mVoice = std::make_unique<VoxVoice>(inSampleRate);
+        VOX_LOG("VoxVoice created successfully");
         mVoice->setParameters(mStoredParameters);
         
         // Initialize output level metering
@@ -291,6 +302,7 @@ public:
     }
     
     void handleOneEvent(AUEventSampleTime now, AURenderEvent const *event) {
+        VOX_LOG("Event received: type=%d", event->head.eventType);
         switch (event->head.eventType) {
             case AURenderEventParameter: {
                 handleParameterEvent(now, event->parameter);
@@ -301,6 +313,7 @@ public:
                 break;
             }
             case AURenderEventMIDIEventList: {
+                VOX_LOG("MIDI Event List received!");
                 handleMIDIEventList(now, &event->MIDIEventsList);
                 break;
             }
@@ -317,16 +330,20 @@ public:
         auto visitor = [] (void* context, MIDITimeStamp timeStamp, MIDIUniversalMessage message) {
             auto thisObject = static_cast<VoxExtensionDSPKernel *>(context);
             
+            VOX_LOG("MIDI message type: %d", message.type);
             switch (message.type) {
                 case kMIDIMessageTypeChannelVoice1: {
+                    VOX_LOG("-> MIDI 1.0 Voice Message");
                     thisObject->handleMIDI1VoiceMessage(message);
                     break;
                 }
                 case kMIDIMessageTypeChannelVoice2: {
+                    VOX_LOG("-> MIDI 2.0 Voice Message");
                     thisObject->handleMIDI2VoiceMessage(message);
                     break;
                 }
                 default:
+                    VOX_LOG("-> Unknown/unhandled type");
                     break;
             }
         };
@@ -342,12 +359,14 @@ public:
         
         switch (status) {
             case kMIDICVStatusNoteOff: {
+                VOX_LOG("MIDI1 Note OFF: note=%d", note);
                 if (mVoice) {
                     mVoice->noteOff(note);
                 }
                 break;
             }
             case kMIDICVStatusNoteOn: {
+                VOX_LOG("MIDI1 Note ON: note=%d vel=%d", note, velocity);
                 if (mVoice) {
                     if (velocity == 0) {
                         // Note on with velocity 0 = note off
@@ -379,14 +398,16 @@ public:
         
         switch (message.channelVoice2.status) {
             case kMIDICVStatusNoteOff: {
+                VOX_LOG("MIDI2 Note OFF: note=%d", note.number);
                 if (mVoice) {
                     mVoice->noteOff(note.number);
                 }
                 break;
             }
             case kMIDICVStatusNoteOn: {
+                const auto velocity = message.channelVoice2.note.velocity;
+                VOX_LOG("MIDI2 Note ON: note=%d vel=%u", note.number, velocity);
                 if (mVoice) {
-                    const auto velocity = message.channelVoice2.note.velocity;
                     const double normalizedVelocity = (double)velocity / (double)std::numeric_limits<std::uint16_t>::max();
                     mVoice->noteOn(note.number, normalizedVelocity);
                 }
