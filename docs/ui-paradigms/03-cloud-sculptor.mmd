@@ -1,0 +1,49 @@
+%%{init: {'theme': 'dark'}}%%
+flowchart TB
+    subgraph PARADIGM3["PARADIGM 3: CLOUD SCULPTOR"]
+        direction TB
+        
+        subgraph CONCEPT["Core Concept"]
+            IDEA["Visualize the grain cloud directly.<br/>Parameters emerge from visual manipulation.<br/>Shape the CLOUD, not the numbers."]
+        end
+        
+        subgraph CLOUDVIEW["Main View: 3D Cloud Visualization"]
+            direction TB
+            
+            subgraph VISUAL["Cloud Display"]
+                CLOUD["◦ ∘ ○ ◦ ∘<br/>  ∘ ◦ ○ ∘<br/>○ ∘ ◦ ○ ◦<br/>  ◦ ∘ ○ ∘<br/>∘ ○ ◦ ∘ ○<br/><br/>Each dot = one grain<br/>X = pitch / time<br/>Y = formant<br/>Z (depth) = pan<br/>Size = amplitude<br/>Color = pulsaret shape"]
+            end
+            
+            subgraph TOOLS["Sculpting Tools"]
+                MOVE["✋ Move<br/>drag cloud center"]
+                RESIZE["⇔ Resize<br/>expand/contract scatter"]
+                DENSITY["◐ Density<br/>add/remove grains"]
+                SHAPE["◇ Shape<br/>morph cloud geometry"]
+                GRAVITY["↓ Gravity<br/>pull toward pitch center"]
+            end
+        end
+        
+        subgraph CLOUDPROPS["Cloud Properties"]
+            direction LR
+            CENTER["Center Point<br/>= base pitch + formant"]
+            SCATTER["Scatter Radius<br/>= stochastic spread"]
+            TURBULENCE["Turbulence<br/>= chaos amount"]
+            FLOW["Flow Direction<br/>= drift vector"]
+        end
+        
+        subgraph BEHAVIORS["Cloud Behaviors"]
+            BREATHE["🫁 Breathe<br/>rhythmic expansion"]
+            ORBIT["🔄 Orbit<br/>rotation around center"]
+            SWARM["🐝 Swarm<br/>particles follow attractors"]
+            EXPLODE["💥 Explode/Implode<br/>dramatic scatter events"]
+        end
+    end
+    
+    CONCEPT --> CLOUDVIEW
+    CLOUDVIEW --> CLOUDPROPS
+    CLOUDPROPS --> BEHAVIORS
+    
+    style PARADIGM3 fill:#1a1a2e
+    style VISUAL fill:#223344
+    style TOOLS fill:#334422
+    style BEHAVIORS fill:#442233

@@ -1,0 +1,53 @@
+%%{init: {'theme': 'dark'}}%%
+flowchart TB
+    subgraph PARADIGM5["PARADIGM 5: MACRO CONDUCTOR"]
+        direction TB
+        
+        subgraph CONCEPT["Core Concept"]
+            IDEA["Hide complexity behind SEMANTIC controls.<br/>Express musical INTENT, not parameters.<br/>AI-assisted mapping from gesture to sound."]
+        end
+        
+        subgraph MAINCONTROLS["Main Performance Surface"]
+            direction LR
+            
+            subgraph SEMANTIC["Semantic Macros"]
+                M1["🌡️ INTENSITY<br/>calm ←→ aggressive<br/><br/>Maps to: chaos, density,<br/>scatter, amp envelope"]
+                M2["🎨 COLOR<br/>dark ←→ bright<br/><br/>Maps to: formant position,<br/>vowel morph, harmonics"]
+                M3["🌀 MOVEMENT<br/>static ←→ evolving<br/><br/>Maps to: LFO depths,<br/>drift, trajectory speed"]
+                M4["🌌 SPACE<br/>intimate ←→ vast<br/><br/>Maps to: stereo spread,<br/>voice detune, reverb"]
+            end
+        end
+        
+        subgraph EXPRESSION["Expression Inputs"]
+            direction LR
+            BREATH["🌬️ Breath Controller<br/>→ Intensity"]
+            PRESSURE["👆 Pressure/Aftertouch<br/>→ Color"]
+            TILT["📱 Tilt/Gyro<br/>→ Movement"]
+            PROXIMITY["✋ Proximity Sensor<br/>→ Space"]
+        end
+        
+        subgraph LEARNING["Gesture Learning"]
+            RECORD["Record: Play while tweaking"]
+            LEARN["Learn: AI finds correlations"]
+            REFINE["Refine: Adjust mappings"]
+            SAVE["Save: Store as macro preset"]
+        end
+        
+        subgraph PERSONAS["Sound Personas"]
+            P1["👁️ Observer<br/>sparse, contemplative"]
+            P2["🔥 Firestarter<br/>aggressive, chaotic"]
+            P3["🌊 Oceanic<br/>flowing, immersive"]
+            P4["🤖 Machine<br/>precise, rhythmic"]
+            P5["👻 Ghost<br/>ethereal, distant"]
+        end
+    end
+    
+    CONCEPT --> MAINCONTROLS
+    MAINCONTROLS --> EXPRESSION
+    EXPRESSION --> LEARNING
+    LEARNING --> PERSONAS
+    
+    style PARADIGM5 fill:#1a1a2e
+    style SEMANTIC fill:#2a4a3a
+    style EXPRESSION fill:#4a2a3a
+    style PERSONAS fill:#3a3a4a

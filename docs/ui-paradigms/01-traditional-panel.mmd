@@ -1,0 +1,55 @@
+%%{init: {'theme': 'dark'}}%%
+flowchart TB
+    subgraph PARADIGM1["PARADIGM 1: TRADITIONAL PANEL"]
+        direction TB
+        
+        subgraph HEADER["Header Bar"]
+            PRESET[Preset Browser]
+            LOGO[VOX]
+            METERS[Output Meters]
+        end
+        
+        subgraph MAINPANEL["Main Panel - Left to Right Signal Flow"]
+            direction LR
+            
+            subgraph OSC["OSCILLATOR"]
+                SHAPE[Pulsaret Shape]
+                DUTY[Duty Cycle]
+                DENSITY[Grain Density]
+            end
+            
+            subgraph FILTER["FORMANT FILTER"]
+                F1[F1 Frequency]
+                F2[F2 Frequency]
+                VOWEL[Vowel Morph<br/>A-E-I-O-U]
+                FMIX[Formant Mix]
+            end
+            
+            subgraph ENVS["ENVELOPES"]
+                AMP[Amp ADSR]
+                MOD[Mod Envelope]
+            end
+            
+            subgraph LFOS["LFOs"]
+                L1[LFO 1<br/>rate/shape/sync]
+                L2[LFO 2<br/>rate/shape/sync]
+            end
+            
+            subgraph PERFORM["PERFORMANCE"]
+                GLIDE[Glide]
+                PBEND[Pitch Bend Range]
+                VOICES[Voice Mode]
+            end
+        end
+        
+        subgraph MODMATRIX["Modulation Matrix (Expandable)"]
+            GRID[12×12 Grid View]
+        end
+    end
+    
+    style PARADIGM1 fill:#1a1a2e
+    style OSC fill:#16213e
+    style FILTER fill:#1a1a2e
+    style ENVS fill:#16213e
+    style LFOS fill:#1a1a2e
+    style PERFORM fill:#16213e

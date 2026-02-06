@@ -1,0 +1,52 @@
+%%{init: {'theme': 'dark'}}%%
+flowchart TB
+    subgraph PARADIGM2["PARADIGM 2: PARAMETER SPACE NAVIGATOR"]
+        direction TB
+        
+        subgraph CONCEPT["Core Concept"]
+            IDEA["Map N-dimensional parameter space<br/>to navigable 2D surfaces.<br/>Explore timbres by MOVING through space."]
+        end
+        
+        subgraph MAINVIEW["Main View: Timbral XY Pad"]
+            direction LR
+            
+            subgraph XYPAD["Primary Navigator"]
+                XY["Large XY Pad<br/>━━━━━━━━━━━━━━<br/>X: Brightness ←→ Darkness<br/>Y: Sparse ↑ Dense ↓<br/><br/>Current position = current timbre<br/>Path recording = gesture capture"]
+            end
+            
+            subgraph AXES["Axis Assignment"]
+                XMAP["X-Axis Maps To:<br/>• Vowel morph position<br/>• Formant F1/F2 ratio<br/>• Filter resonance"]
+                YMAP["Y-Axis Maps To:<br/>• Grain density<br/>• Chaos amount<br/>• Stochastic scatter"]
+            end
+        end
+        
+        subgraph SECONDARY["Secondary Navigators"]
+            direction LR
+            XY2["Mod XY<br/>LFO rates vs depths"]
+            XY3["Space XY<br/>Stereo width vs movement"]
+            XY4["Chaos XY<br/>Lorenz vs Hénon blend"]
+        end
+        
+        subgraph SNAPSHOTS["Snapshot System"]
+            S1["◉ Snapshot A"]
+            S2["◉ Snapshot B"]
+            S3["◉ Snapshot C"]
+            S4["◉ Snapshot D"]
+            MORPH["Morph between snapshots<br/>via position on pad"]
+        end
+        
+        subgraph GESTURES["Gesture Recording"]
+            REC["Record path through space"]
+            PLAY["Playback as automation"]
+            LOOP["Loop recorded gestures"]
+        end
+    end
+    
+    CONCEPT --> MAINVIEW
+    MAINVIEW --> SECONDARY
+    SECONDARY --> SNAPSHOTS
+    SNAPSHOTS --> GESTURES
+    
+    style PARADIGM2 fill:#1a1a2e
+    style XYPAD fill:#2d4a22
+    style SNAPSHOTS fill:#4a2244

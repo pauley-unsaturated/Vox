@@ -1,0 +1,62 @@
+%%{init: {'theme': 'dark'}}%%
+flowchart TB
+    subgraph PARADIGM4["PARADIGM 4: TRAJECTORY COMPOSER"]
+        direction TB
+        
+        subgraph CONCEPT["Core Concept"]
+            IDEA["Pre-compose parameter journeys.<br/>Design how sounds EVOLVE over time.<br/>Performance = triggering trajectories."]
+        end
+        
+        subgraph TIMELINE["Main View: Multi-Lane Timeline"]
+            direction TB
+            
+            subgraph LANES["Parameter Lanes"]
+                L1["━━━━╱╲━━━━━━━━━━━ Vowel Morph"]
+                L2["━━━━━━━━╲╱━━━━━━━ Grain Density"]
+                L3["━━╱━━━━━━━━━╲━━━━ Chaos Amount"]
+                L4["━━━━━━╱╲╱╲━━━━━━━ Formant Sweep"]
+                L5["━━━━━━━━━━━━━━━━━ Drift Rate"]
+            end
+            
+            subgraph PLAYHEAD["Playhead Modes"]
+                FREE["Free: time-based playback"]
+                NOTE["Note-sync: restart on note"]
+                LOOP["Loop: cycle through trajectory"]
+                SCRUB["Scrub: manual position control"]
+            end
+        end
+        
+        subgraph CURVES["Curve Types"]
+            direction LR
+            LINEAR["/ Linear"]
+            EXP["⌒ Exponential"]
+            STEP["┐ Step"]
+            SMOOTH["∿ S-Curve"]
+            RANDOM["⚡ Stochastic"]
+        end
+        
+        subgraph TRIGGERS["Trajectory Triggers"]
+            direction LR
+            T1["Note On → Start"]
+            T2["Velocity → Speed"]
+            T3["Aftertouch → Scrub"]
+            T4["Mod Wheel → Blend"]
+        end
+        
+        subgraph LIBRARY["Trajectory Library"]
+            PRESET1["🌅 Dawn Rise<br/>slow brighten"]
+            PRESET2["🌊 Wave Cycle<br/>periodic morph"]
+            PRESET3["💫 Starburst<br/>explosive scatter"]
+            PRESET4["🎭 Vowel Phrase<br/>A→E→I→O→U"]
+        end
+    end
+    
+    CONCEPT --> TIMELINE
+    TIMELINE --> CURVES
+    CURVES --> TRIGGERS
+    TRIGGERS --> LIBRARY
+    
+    style PARADIGM4 fill:#1a1a2e
+    style LANES fill:#2a3a4a
+    style CURVES fill:#3a2a4a
+    style LIBRARY fill:#4a3a2a

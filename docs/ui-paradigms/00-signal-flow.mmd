@@ -1,0 +1,81 @@
+%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#4a9eff', 'primaryTextColor': '#fff', 'primaryBorderColor': '#7C0000', 'lineColor': '#F8B229', 'secondaryColor': '#006100', 'tertiaryColor': '#333'}}}%%
+flowchart TB
+    subgraph INPUT["🎹 INPUT LAYER"]
+        MIDI[MIDI Notes]
+        VEL[Velocity]
+        AT[Aftertouch]
+        MW[Mod Wheel]
+        PB[Pitch Bend]
+    end
+
+    subgraph VOICE["🔊 VOICE ENGINE (×8)"]
+        direction TB
+        ALLOC[Voice Allocator]
+        
+        subgraph PERVOICE["Per-Voice DSP"]
+            PITCH[Pitch + Glide]
+            PULSAR[Pulsar Oscillator<br/>pulsaret shape, duty cycle]
+            FORMANT[Formant Filter<br/>F1, F2, vowel morph]
+            ADSR[Amplitude Envelope]
+        end
+        
+        subgraph VOICEMOD["Per-Voice Modulation"]
+            LFO1[LFO 1]
+            LFO2[LFO 2]
+            ENV2[Envelope 2]
+        end
+    end
+
+    subgraph CONSTELLATION["🌟 VOICE CONSTELLATION"]
+        DETUNE[Detune Spread]
+        PANSPREAD[Pan Spread]
+        FORMSPREAD[Formant Spread]
+        LFOSPREAD[LFO Phase Spread]
+    end
+
+    subgraph GLOBAL["🌐 GLOBAL MODULATION"]
+        DRIFT[Slow Drift<br/>0.001 Hz wandering]
+        CHAOS[Chaos Generators<br/>Lorenz / Hénon]
+        STOCH[Stochastic Cloud<br/>per-grain scatter]
+        FSEQ[Formant Sequencer]
+    end
+
+    subgraph MATRIX["🔀 MODULATION MATRIX"]
+        MAT[12×12 Routing<br/>curves, via mod]
+    end
+
+    subgraph OUTPUT["🔈 OUTPUT"]
+        MIX[Voice Mixer]
+        MASTER[Master Volume]
+        OUT[Stereo Out]
+    end
+
+    MIDI --> ALLOC
+    VEL --> MAT
+    AT --> MAT
+    MW --> MAT
+    PB --> PITCH
+
+    ALLOC --> PERVOICE
+    PITCH --> PULSAR
+    PULSAR --> FORMANT
+    FORMANT --> ADSR
+    
+    LFO1 --> MAT
+    LFO2 --> MAT
+    ENV2 --> MAT
+    
+    CONSTELLATION --> PERVOICE
+    
+    DRIFT --> MAT
+    CHAOS --> MAT
+    STOCH --> MAT
+    FSEQ --> FORMANT
+    
+    MAT --> PULSAR
+    MAT --> FORMANT
+    MAT --> ADSR
+    
+    ADSR --> MIX
+    MIX --> MASTER
+    MASTER --> OUT
