@@ -56,26 +56,30 @@ This is NOT the same as the amplitude envelope (ADSR). The pulsaret envelope sha
 
 | Component | Roads Equivalent | Status |
 |-----------|------------------|--------|
-| PulsarOscillator.pulsaretShape | Pulsaret waveform (w) | ✅ Partial |
+| PulsarOscillator.pulsaretShape | Pulsaret waveform (w) | ✅ Have |
+| PulsarOscillator.pulsaretEnvelope | Pulsaret envelope (v) | ✅ Phase 7 |
 | PulsarOscillator.dutyCycle | Duty cycle (d) | ✅ Have |
-| FormantFilter (F1/F2, vowelMorph) | Formant frequency (fd) | ⚠️ Different model |
+| PulsarOscillator.formantTrack | Formant tracking | ✅ Phase 7 |
+| PulsarOscillator.edgeFactor | Edge crossfade (PulWM) | ✅ Phase 7 |
+| PulsarOscillator.masking | Burst/stochastic masking | ✅ Phase 7 |
+| FormantFilter (F1/F2, vowelMorph) | Formant frequency (fd) | ✅ Dual formant |
 | ADSREnvelope | Amplitude envelope (a) | ✅ Have |
 | VoiceConstellation.panSpread | Spatial (s) | ⚠️ Partial |
 | 8-voice polyphony | Multiple generators | ✅ Have |
 | StochasticCloud | Advanced PS scatter | ✅ Have |
 | Drift/Chaos | Not in basic PS | ✅ Extra |
-| ModulationMatrix | General routing | ✅ Have |
+| ModulationMatrix | General routing | ✅ Have (16 dests) |
 
 ### What We're Missing
 
 | Roads Feature | Vox Status | Priority |
 |--------------|------------|----------|
-| **Pulsaret envelope (v)** | ❌ Missing | HIGH |
-| **Independent fp/fd control** | ⚠️ Unclear | HIGH |
-| **Pulsaret-width modulation (PulWM)** | ⚠️ Partial | MEDIUM |
-| **Burst masking (b:r ratio)** | ❌ Missing | HIGH |
+| **Pulsaret envelope (v)** | ✅ Implemented (Phase 7) | HIGH |
+| **Independent fp/fd control** | ✅ Implemented (formantTrack) | HIGH |
+| **Pulsaret-width modulation (PulWM)** | ✅ Implemented (edgeFactor) | MEDIUM |
+| **Burst masking (b:r ratio)** | ✅ Implemented (MaskingParams) | HIGH |
 | **Channel masking** | ❌ Missing | MEDIUM |
-| **Stochastic masking** | ⚠️ Have scatter, not masking | MEDIUM |
+| **Stochastic masking** | ✅ Implemented (stochasticProb) | MEDIUM |
 | **OPulWM (overlapped)** | ❌ Missing | LOW |
 | **Convolution with samples** | ❌ Missing | LOW |
 

@@ -92,6 +92,33 @@ Gate + Velocity ─────────────────────�
 
 **Shape values:** 0=Gaussian, 1=RaisedCos, 2=Sine, 3=Triangle
 
+### Group 1B: Pulsar Engine Advanced (Phase 7 - Roads Alignment)
+
+| ID | Name | Range | Default | Unit | Purpose |
+|----|------|-------|---------|------|---------|
+| `pulsaretEnv` | Pulsaret Envelope | 0-4 | 0 | enum | Envelope shape per pulsaret |
+| `envParam` | Envelope Param | 0-100 | 50 | % | Controls envelope width/decay |
+| `formantTrack` | Formant Track | 0-100 | 0 | % | Robot (0) to Natural (100) |
+| `edgeFactor` | Edge Factor | 0-100 | 100 | % | Soft (0) to Hard (100) edges |
+
+**Pulsaret Envelope values:** 
+- 0=Rectangular (hard edges, current behavior)
+- 1=Gaussian (smooth, focused formant)
+- 2=ExpDecay (FOF-style vocal formant)
+- 3=LinearAttack (percussive)
+- 4=FOF (classic formant synthesis)
+
+### Group 1C: Pulse Masking (Phase 7)
+
+| ID | Name | Range | Default | Unit | Purpose |
+|----|------|-------|---------|------|---------|
+| `maskEnabled` | Masking | 0-1 | 0 | bool | Enable burst masking |
+| `burstLen` | Burst Length | 1-32 | 4 | count | Pulsarets before rest |
+| `restLen` | Rest Length | 0-32 | 2 | count | Silent pulsarets |
+| `maskProb` | Mask Probability | 0-100 | 100 | % | Stochastic dropout (analog feel) |
+
+**Subharmonic Effect:** Burst pattern b:r creates subharmonic at fp × b/(b+r)
+
 ### Group 2: Formant Shaper (3 params)
 
 | ID | Name | Range | Default | Unit | Purpose |
