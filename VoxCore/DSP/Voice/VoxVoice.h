@@ -26,6 +26,18 @@ struct VoxVoiceParameters {
     double dutyCycle = 0.2;          // 0.01 to 1.0
     int pulsaretShape = 1;           // 0=Gaussian, 1=RaisedCosine, 2=Sine, 3=Triangle
     
+    // Phase 7: Roads Pulsar Synthesis Parameters
+    int pulsaretEnvelope = 0;        // 0=Rectangular, 1=Gaussian, 2=ExpDecay, 3=LinearAttack, 4=FOF
+    double envelopeParam = 0.5;      // 0.0 to 1.0, controls envelope shape
+    double formantTrack = 0.0;       // 0.0 = robot, 1.0 = natural
+    double edgeFactor = 1.0;         // 0.0 = soft crossfade, 1.0 = hard edges
+    
+    // Phase 7: Pulse Masking
+    bool maskingEnabled = false;
+    int burstLength = 4;             // Number of pulsarets in burst
+    int restLength = 2;              // Number of silent pulsarets
+    double stochasticMaskProb = 1.0; // 0-1 probability of emission
+    
     // Formant Filter
     double formant1Freq = 800.0;     // Hz
     double formant2Freq = 1200.0;    // Hz
@@ -123,6 +135,17 @@ public:
         // Apply to pulsar oscillator
         mPulsarOsc.setDutyCycle(params.dutyCycle);
         mPulsarOsc.setShape(static_cast<PulsarOscillator::Shape>(params.pulsaretShape));
+        
+        // Phase 7: Apply Roads pulsar synthesis parameters
+        mPulsarOsc.setPulsaretEnvelope(static_cast<PulsaretEnvelope>(params.pulsaretEnvelope));
+        mPulsarOsc.setEnvelopeParam(params.envelopeParam);
+        mPulsarOsc.setFormantTrack(params.formantTrack);
+        mPulsarOsc.setEdgeFactor(params.edgeFactor);
+        
+        // Phase 7: Apply masking parameters
+        mPulsarOsc.setMaskingEnabled(params.maskingEnabled);
+        mPulsarOsc.setBurstPattern(params.burstLength, params.restLength);
+        mPulsarOsc.setStochasticMaskProb(static_cast<float>(params.stochasticMaskProb));
         
         // Apply to formant filter
         if (params.useVowelMorph) {

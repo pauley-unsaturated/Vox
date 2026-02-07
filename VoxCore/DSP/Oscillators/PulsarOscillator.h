@@ -8,6 +8,12 @@
 //  Phase 5: Stochastic Cloud Engine (Xenakis-inspired)
 //  Per-grain randomization for pitch, timing, formant, pan, and amplitude
 //
+//  Phase 7: Roads Pulsar Synthesis Alignment
+//  - PulsaretEnvelope: Separate envelope shapes each pulsaret (v in Roads' model)
+//  - FormantTrack: Controls how formant frequency tracks fundamental
+//  - EdgeFactor: Controls crossfade when duty approaches period
+//  - Pulse Masking: Burst patterns for subharmonics
+//
 
 #pragma once
 
@@ -17,6 +23,49 @@
 #include <algorithm>
 #include <numbers>
 #include "../Modulators/StochasticDistribution.h"
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Phase 7: Pulsaret Envelope Types (Roads' "v" parameter)
+// ═══════════════════════════════════════════════════════════════════════════
+//
+// The pulsaret envelope shapes EACH individual pulsaret (1-10ms timescale).
+// This is SEPARATE from the amplitude ADSR which shapes the overall note.
+//
+// From Roads: "The pulsaret envelope's contribution to the spectrum is
+// significant... A rectangular envelope produces a broad sinc function...
+// A Gaussian envelope compresses the spectral energy, centering it around
+// the formant frequency."
+//
+
+enum class PulsaretEnvelope : int {
+    RECTANGULAR = 0,  // Current behavior, hard edges, broad sinc spectrum
+    GAUSSIAN,         // Smooth bell curve, focused formant, minimizes sidebands
+    EXP_DECAY,        // FOF-style exponential decay, vocal formant character
+    LINEAR_ATTACK,    // Linear rise with fast decay, percussive character
+    FOF,              // Classic formant synthesis: sharp attack + exp decay
+    COUNT
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Phase 7: Masking Parameters
+// ═══════════════════════════════════════════════════════════════════════════
+//
+// Pulse masking creates rhythmic patterns and subharmonics.
+// Burst pattern b:r creates subharmonics at fp/(b+r).
+//
+
+struct MaskingParams {
+    bool enabled = false;
+    int burstLength = 4;          // b: number of pulsarets before rest
+    int restLength = 2;           // r: number of silent pulsarets
+    float stochasticProb = 1.0f;  // 0-1: probability of emitting each pulsaret
+    
+    // Calculated subharmonic factor: fp/(b+r)
+    double getSubharmonicFactor() const {
+        if (!enabled || (burstLength + restLength) <= 0) return 1.0;
+        return static_cast<double>(burstLength) / static_cast<double>(burstLength + restLength);
+    }
+};
 
 // Stochastic parameters structure for per-grain variation
 struct StochasticParams {
@@ -59,7 +108,7 @@ struct GrainState {
 
 class PulsarOscillator {
 public:
-    // Pulsaret waveform shapes
+    // Pulsaret waveform shapes (the carrier waveform)
     enum class Shape {
         GAUSSIAN,
         RAISED_COSINE,
@@ -74,6 +123,13 @@ public:
         , mFrequency(440.0)
         , mDutyCycle(0.2)
         , mShape(Shape::RAISED_COSINE)
+        , mPulsaretEnvelope(PulsaretEnvelope::RECTANGULAR)
+        , mEnvelopeParam(0.5)
+        , mFormantTrack(0.0)
+        , mEdgeFactor(1.0)
+        , mMasking()
+        , mMaskCounter(0)
+        , mMaskInBurst(true)
         , mStochastic()
         , mCurrentGrain()
         , mRng(0)
@@ -111,6 +167,107 @@ public:
     }
     
     Shape getShape() const { return mShape; }
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // Phase 7: Pulsaret Envelope (Roads)
+    // ═══════════════════════════════════════════════════════════════════
+    
+    // Set the pulsaret envelope type
+    // This shapes EACH pulsaret, separate from the amp ADSR
+    void setPulsaretEnvelope(PulsaretEnvelope envelope) {
+        mPulsaretEnvelope = envelope;
+    }
+    
+    PulsaretEnvelope getPulsaretEnvelope() const { return mPulsaretEnvelope; }
+    
+    // Envelope shaping parameter (0.0 to 1.0)
+    // - For GAUSSIAN: controls width (0 = narrow/focused, 1 = wide/broad)
+    // - For EXP_DECAY: controls decay rate (0 = fast, 1 = slow)
+    // - For LINEAR_ATTACK: controls attack portion (0 = instant, 1 = full ramp)
+    // - For FOF: controls the balance of attack vs decay
+    void setEnvelopeParam(double param) {
+        mEnvelopeParam = std::max(0.0, std::min(1.0, param));
+    }
+    
+    double getEnvelopeParam() const { return mEnvelopeParam; }
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // Phase 7: Formant Track (Roads)
+    // ═══════════════════════════════════════════════════════════════════
+    
+    // Formant tracking: how much the implicit formant (fd = 1/d) tracks
+    // the fundamental frequency (fp)
+    // 0.0 = Robot voice (fd fixed regardless of fp changes)
+    // 1.0 = Natural voice (fd tracks fp, maintaining vocal character)
+    void setFormantTrack(double track) {
+        mFormantTrack = std::max(0.0, std::min(1.0, track));
+    }
+    
+    double getFormantTrack() const { return mFormantTrack; }
+    
+    // Get the implicit formant frequency from duty cycle
+    // fd = sampleRate / (dutyCycle * period_in_samples)
+    // Simplified: fd = frequency / dutyCycle
+    double getImplicitFormant() const {
+        if (mDutyCycle <= 0.0) return 0.0;
+        return mFrequency / mDutyCycle;
+    }
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // Phase 7: Edge Factor (Roads PulWM)
+    // ═══════════════════════════════════════════════════════════════════
+    
+    // Edge factor controls what happens when duty cycle approaches or
+    // exceeds the period (duty > period scenario in PulWM).
+    // 0.0 = Soft crossfade at edges (smoother, less aliasing)
+    // 1.0 = Hard cutoff (brighter, more edge harmonics)
+    void setEdgeFactor(double factor) {
+        mEdgeFactor = std::max(0.0, std::min(1.0, factor));
+    }
+    
+    double getEdgeFactor() const { return mEdgeFactor; }
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // Phase 7: Pulse Masking (Roads)
+    // ═══════════════════════════════════════════════════════════════════
+    
+    void setMaskingParams(const MaskingParams& params) {
+        mMasking = params;
+        // Reset mask counter when params change
+        mMaskCounter = 0;
+        mMaskInBurst = true;
+    }
+    
+    MaskingParams getMaskingParams() const { return mMasking; }
+    
+    // Enable/disable masking
+    void setMaskingEnabled(bool enabled) {
+        mMasking.enabled = enabled;
+        if (enabled) {
+            mMaskCounter = 0;
+            mMaskInBurst = true;
+        }
+    }
+    
+    bool getMaskingEnabled() const { return mMasking.enabled; }
+    
+    // Set burst pattern: b pulsarets on, r pulsarets off
+    // Creates subharmonics at fp/(b+r)
+    void setBurstPattern(int burstLength, int restLength) {
+        mMasking.burstLength = std::max(1, burstLength);
+        mMasking.restLength = std::max(0, restLength);
+    }
+    
+    int getBurstLength() const { return mMasking.burstLength; }
+    int getRestLength() const { return mMasking.restLength; }
+    
+    // Stochastic probability: 0-1 probability of emitting each pulsaret
+    // Values 0.8-0.9 create "erratic contact" analog feel
+    void setStochasticMaskProb(float prob) {
+        mMasking.stochasticProb = std::max(0.0f, std::min(1.0f, prob));
+    }
+    
+    float getStochasticMaskProb() const { return mMasking.stochasticProb; }
     
     // ═══════════════════════════════════════════════════════════════════
     // Phase 5: Stochastic Parameters
@@ -206,6 +363,10 @@ public:
         mInGrain = false;
         mTimingJitterCounter = 0.0;
         mCurrentGrain = GrainState();
+        
+        // Phase 7: Reset masking state
+        mMaskCounter = 0;
+        mMaskInBurst = true;
     }
     
     // Process one sample
@@ -232,6 +393,40 @@ public:
             mInGrain = true;
             randomizeGrain();
             
+            // ═══════════════════════════════════════════════════════════
+            // Phase 7: Apply pulse masking
+            // ═══════════════════════════════════════════════════════════
+            if (mMasking.enabled) {
+                // Check burst/rest pattern
+                if (mMaskInBurst) {
+                    mMaskCounter++;
+                    if (mMaskCounter >= mMasking.burstLength) {
+                        mMaskCounter = 0;
+                        mMaskInBurst = false;  // Enter rest phase
+                    }
+                } else {
+                    mMaskCounter++;
+                    if (mMaskCounter >= mMasking.restLength) {
+                        mMaskCounter = 0;
+                        mMaskInBurst = true;  // Enter burst phase
+                    }
+                }
+                
+                // Apply stochastic dropout
+                if (mMaskInBurst && mMasking.stochasticProb < 1.0f) {
+                    double random = mRng.generate(DistributionType::UNIFORM, 1.0);
+                    if (random > mMasking.stochasticProb) {
+                        mMaskInBurst = false;  // Skip this pulsaret
+                    }
+                }
+                
+                // If we're in rest phase, don't emit this pulsaret
+                if (!mMaskInBurst) {
+                    advancePhases();
+                    return 0.0;
+                }
+            }
+            
             // Apply timing jitter (delays grain start)
             if (mCurrentGrain.timingOffsetSamples > 0) {
                 mTimingJitterCounter = mCurrentGrain.timingOffsetSamples;
@@ -248,6 +443,9 @@ public:
             // Normalize phase within pulsaret (0 to 1)
             double pulsaretPhase = grainPhase / mDutyCycle;
             
+            // ═══════════════════════════════════════════════════════════
+            // Generate carrier waveform
+            // ═══════════════════════════════════════════════════════════
             switch (mShape) {
                 case Shape::GAUSSIAN:
                     output = generateGaussian(pulsaretPhase);
@@ -261,6 +459,20 @@ public:
                 case Shape::TRIANGLE:
                     output = generateTriangle(pulsaretPhase);
                     break;
+            }
+            
+            // ═══════════════════════════════════════════════════════════
+            // Phase 7: Apply pulsaret envelope (Roads' "v" parameter)
+            // ═══════════════════════════════════════════════════════════
+            double envelope = generatePulsaretEnvelope(pulsaretPhase);
+            output *= envelope;
+            
+            // ═══════════════════════════════════════════════════════════
+            // Phase 7: Apply edge factor (crossfade at boundaries)
+            // ═══════════════════════════════════════════════════════════
+            if (mEdgeFactor < 1.0) {
+                double edgeEnv = applyEdgeCrossfade(pulsaretPhase);
+                output *= edgeEnv;
             }
             
             // Apply amplitude scatter
@@ -386,12 +598,146 @@ private:
         }
     }
     
+    // ═══════════════════════════════════════════════════════════════════
+    // Phase 7: Pulsaret Envelope Generation (Roads' "v" parameter)
+    // ═══════════════════════════════════════════════════════════════════
+    
+    // Generate the pulsaret envelope based on current envelope type
+    // Input phase is 0 to 1 within the pulsaret
+    double generatePulsaretEnvelope(double phase) {
+        switch (mPulsaretEnvelope) {
+            case PulsaretEnvelope::RECTANGULAR:
+                // Hard edges, no shaping - current default behavior
+                return 1.0;
+                
+            case PulsaretEnvelope::GAUSSIAN:
+                return generateGaussianEnvelope(phase);
+                
+            case PulsaretEnvelope::EXP_DECAY:
+                return generateExpDecayEnvelope(phase);
+                
+            case PulsaretEnvelope::LINEAR_ATTACK:
+                return generateLinearAttackEnvelope(phase);
+                
+            case PulsaretEnvelope::FOF:
+                return generateFOFEnvelope(phase);
+                
+            default:
+                return 1.0;
+        }
+    }
+    
+    // Gaussian envelope: smooth bell curve, minimizes spectral sidebands
+    // Centers spectral energy around the formant frequency
+    double generateGaussianEnvelope(double phase) {
+        // Map 0-1 to -1 to +1 (centered at 0.5)
+        double x = (phase - 0.5) * 2.0;
+        
+        // Width controlled by envelope param (0.1 to 1.0 effective range)
+        // Lower param = narrower Gaussian = more focused spectrum
+        double sigma = 0.15 + mEnvelopeParam * 0.35;  // 0.15 to 0.5
+        
+        return std::exp(-(x * x) / (2.0 * sigma * sigma));
+    }
+    
+    // Exponential decay: sharp attack, exponential falloff
+    // Good for FOF-style vocal formant synthesis
+    double generateExpDecayEnvelope(double phase) {
+        // Decay rate controlled by envelope param
+        // Lower param = faster decay = brighter/percussive
+        double decayRate = 3.0 + (1.0 - mEnvelopeParam) * 7.0;  // 3 to 10
+        
+        return std::exp(-phase * decayRate);
+    }
+    
+    // Linear attack: linear rise with fast decay
+    // Percussive, forward-leaning character
+    double generateLinearAttackEnvelope(double phase) {
+        // Attack portion controlled by envelope param
+        double attackPortion = 0.1 + mEnvelopeParam * 0.4;  // 0.1 to 0.5
+        
+        if (phase < attackPortion) {
+            // Linear rise
+            return phase / attackPortion;
+        } else {
+            // Exponential decay for the rest
+            double decayPhase = (phase - attackPortion) / (1.0 - attackPortion);
+            return std::exp(-decayPhase * 4.0);
+        }
+    }
+    
+    // FOF (Formant Wave Function) envelope: classic formant synthesis shape
+    // Sharp attack followed by exponential decay with slight overshoot
+    // Used in CHANT and other formant synthesizers
+    double generateFOFEnvelope(double phase) {
+        // Attack time controlled by envelope param
+        double attackTime = 0.02 + mEnvelopeParam * 0.08;  // 0.02 to 0.1
+        
+        if (phase < attackTime) {
+            // Sine-squared rise (smooth attack)
+            double attackPhase = phase / attackTime;
+            double sinVal = std::sin(attackPhase * std::numbers::pi * 0.5);
+            return sinVal * sinVal;
+        } else {
+            // Exponential decay
+            double decayPhase = (phase - attackTime) / (1.0 - attackTime);
+            double decayRate = 2.0 + (1.0 - mEnvelopeParam) * 4.0;  // 2 to 6
+            return std::exp(-decayPhase * decayRate);
+        }
+    }
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // Phase 7: Edge Crossfade (Roads PulWM)
+    // ═══════════════════════════════════════════════════════════════════
+    
+    // Apply soft crossfade at pulsaret edges when edgeFactor < 1.0
+    // This reduces aliasing when duty cycle is high
+    double applyEdgeCrossfade(double phase) {
+        // Crossfade region size based on edge factor
+        // edgeFactor = 0: maximum crossfade (10% of pulsaret at each edge)
+        // edgeFactor = 1: no crossfade (hard edges)
+        double crossfadeSize = (1.0 - mEdgeFactor) * 0.1;
+        
+        if (crossfadeSize <= 0.0) {
+            return 1.0;  // No crossfade
+        }
+        
+        double envelope = 1.0;
+        
+        // Fade in at start
+        if (phase < crossfadeSize) {
+            envelope *= phase / crossfadeSize;
+        }
+        
+        // Fade out at end
+        if (phase > (1.0 - crossfadeSize)) {
+            envelope *= (1.0 - phase) / crossfadeSize;
+        }
+        
+        return envelope;
+    }
+    
     double mSampleRate;
     double mPhase;
     double mPhaseIncrement;
     double mFrequency;
     double mDutyCycle;
     Shape mShape;
+    
+    // Phase 7: Pulsaret envelope (Roads' "v" parameter)
+    PulsaretEnvelope mPulsaretEnvelope;
+    double mEnvelopeParam;      // 0.0 to 1.0, controls envelope shape
+    
+    // Phase 7: Formant tracking
+    double mFormantTrack;       // 0.0 = robot, 1.0 = natural
+    
+    // Phase 7: Edge factor for PulWM
+    double mEdgeFactor;         // 0.0 = soft, 1.0 = hard
+    
+    // Phase 7: Pulse masking
+    MaskingParams mMasking;
+    int mMaskCounter;           // Current position in burst/rest cycle
+    bool mMaskInBurst;          // true = emitting, false = resting
     
     // Phase 5: Stochastic cloud parameters
     StochasticParams mStochastic;

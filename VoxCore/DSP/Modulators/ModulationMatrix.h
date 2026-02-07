@@ -56,6 +56,13 @@ enum class ModDest : int {
     LFO1Rate,       // LFO1 rate modulation
     LFO2Rate,       // LFO2 rate modulation
     ChaosRate,      // Chaos generator rate
+    
+    // Phase 7: Roads Pulsar Synthesis Parameters
+    PulsaretEnvParam,  // Pulsaret envelope parameter (shape control)
+    FormantTrack,      // Formant tracking (0=robot, 1=natural)
+    EdgeFactor,        // Edge crossfade factor (0=soft, 1=hard)
+    MaskProb,          // Stochastic mask probability
+    
     COUNT
 };
 
@@ -398,7 +405,8 @@ public:
     static const char* getDestName(ModDest dst) {
         static const char* names[] = {
             "Pitch", "F1", "F2", "VowelMorph", "DutyCycle", "GrainDensity",
-            "CloudScatter", "Pan", "Amp", "LFO1Rate", "LFO2Rate", "ChaosRate"
+            "CloudScatter", "Pan", "Amp", "LFO1Rate", "LFO2Rate", "ChaosRate",
+            "PulsaretEnvParam", "FormantTrack", "EdgeFactor", "MaskProb"
         };
         int idx = static_cast<int>(dst);
         return (idx >= 0 && idx < kDestCount) ? names[idx] : "Unknown";
