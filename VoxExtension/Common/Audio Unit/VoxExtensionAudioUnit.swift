@@ -341,6 +341,24 @@ public class VoxExtensionAudioUnit: AUAudioUnit, @unchecked Sendable
     public func getSequencerCurrentStep() -> Int {
         return currentSequencerStep
     }
+
+    // MARK: - Mod Matrix Activity (Phase 8.10)
+    // TODO: Wire to actual kernel ModulationMatrix destination values when DSP integration is complete.
+    // For now, returns stub data so the UI infrastructure is fully testable.
+
+    /// Returns per-destination modulation activity levels (absolute values, 0.0–1.0).
+    /// When the kernel is fully wired, this will read from an atomic buffer
+    /// written by the audio thread's ModulationMatrix::getAllDestinationValues().
+    public func getModMatrixActivityLevels() -> [Float] {
+        // Stub: return zeros until kernel integration
+        return Array(repeating: 0.0, count: 16)
+    }
+
+    /// Returns the number of currently active modulation routes.
+    public func getModMatrixActiveRouteCount() -> Int {
+        // Stub: return 0 until kernel integration
+        return 0
+    }
     
     public func clearSequencerSteps() {
         sequencerSteps = Array(repeating: (pitch: 0, gate: true, tie: false, accent: false), count: 32)
