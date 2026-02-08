@@ -26,7 +26,8 @@ struct VoiceAllocatorTests {
     func testDefaultMode() {
         let allocator = VoiceAllocator(8)
         
-        #expect(allocator.getAllocationMode() == VoiceAllocator.Mode.RoundRobin, 
+        // Use raw value comparison due to Swift/C++ enum interop
+        #expect(allocator.getAllocationModeRaw() == 0,  // 0 = RoundRobin
                "Default mode should be RoundRobin")
     }
     
@@ -35,7 +36,7 @@ struct VoiceAllocatorTests {
     @Test("Allocate returns sequential voice indices in RoundRobin mode")
     func testRoundRobinAllocation() {
         var allocator = VoiceAllocator(8)
-        allocator.setAllocationMode(VoiceAllocator.Mode.RoundRobin)
+        allocator.setAllocationModeRaw(0)  // RoundRobin = 0
         
         // Allocate first voice
         let voice0 = allocator.allocate(60) // Middle C
@@ -83,7 +84,7 @@ struct VoiceAllocatorTests {
     @Test("LowestNote mode allocates lowest available voice")
     func testLowestNoteMode() {
         var allocator = VoiceAllocator(8)
-        allocator.setAllocationMode(VoiceAllocator.Mode.LowestNote)
+        allocator.setAllocationModeRaw(1)  // LowestNote = 1
         
         // Allocate some voices
         _ = allocator.allocate(60)
@@ -101,7 +102,7 @@ struct VoiceAllocatorTests {
     @Test("HighestNote mode allocates highest available voice")
     func testHighestNoteMode() {
         var allocator = VoiceAllocator(8)
-        allocator.setAllocationMode(VoiceAllocator.Mode.HighestNote)
+        allocator.setAllocationModeRaw(2)  // HighestNote = 2
         
         // Allocate some voices (they'll get allocated from high end)
         let v0 = allocator.allocate(60)
@@ -114,7 +115,7 @@ struct VoiceAllocatorTests {
     @Test("LastPlayed mode reuses most recently released voice")
     func testLastPlayedMode() {
         var allocator = VoiceAllocator(8)
-        allocator.setAllocationMode(VoiceAllocator.Mode.LastPlayed)
+        allocator.setAllocationModeRaw(3)  // LastPlayed = 3
         
         // Allocate and release voices
         let v0 = allocator.allocate(60)

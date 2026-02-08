@@ -130,6 +130,7 @@ public:
         , mMasking()
         , mMaskCounter(0)
         , mMaskInBurst(true)
+        , mCurrentPulsaretMasked(false)
         , mStochastic()
         , mCurrentGrain()
         , mRng(0)
@@ -367,6 +368,7 @@ public:
         // Phase 7: Reset masking state
         mMaskCounter = 0;
         mMaskInBurst = true;
+        mCurrentPulsaretMasked = false;
     }
     
     // Process one sample
@@ -396,35 +398,37 @@ public:
             // ═══════════════════════════════════════════════════════════
             // Phase 7: Apply pulse masking
             // ═══════════════════════════════════════════════════════════
+            mCurrentPulsaretMasked = false;  // Default: not masked
+            
             if (mMasking.enabled) {
-                // Check burst/rest pattern
+                // Save current burst state BEFORE updating - we emit based on entry state
+                bool shouldEmitThisPulsaret = mMaskInBurst;
+                
+                // Update burst/rest pattern state for NEXT pulsaret
                 if (mMaskInBurst) {
                     mMaskCounter++;
                     if (mMaskCounter >= mMasking.burstLength) {
                         mMaskCounter = 0;
-                        mMaskInBurst = false;  // Enter rest phase
+                        mMaskInBurst = false;  // Enter rest phase for next pulsaret
                     }
                 } else {
                     mMaskCounter++;
                     if (mMaskCounter >= mMasking.restLength) {
                         mMaskCounter = 0;
-                        mMaskInBurst = true;  // Enter burst phase
+                        mMaskInBurst = true;  // Enter burst phase for next pulsaret
                     }
                 }
                 
-                // Apply stochastic dropout
-                if (mMaskInBurst && mMasking.stochasticProb < 1.0f) {
+                // Apply stochastic dropout (only affects this pulsaret if we're in burst)
+                if (shouldEmitThisPulsaret && mMasking.stochasticProb < 1.0f) {
                     double random = mRng.generate(DistributionType::UNIFORM, 1.0);
                     if (random > mMasking.stochasticProb) {
-                        mMaskInBurst = false;  // Skip this pulsaret
+                        shouldEmitThisPulsaret = false;  // Skip this pulsaret
                     }
                 }
                 
-                // If we're in rest phase, don't emit this pulsaret
-                if (!mMaskInBurst) {
-                    advancePhases();
-                    return 0.0;
-                }
+                // Store masking decision for the entire pulsaret duration
+                mCurrentPulsaretMasked = !shouldEmitThisPulsaret;
             }
             
             // Apply timing jitter (delays grain start)
@@ -436,10 +440,11 @@ public:
         } else if (!inGrainWindow && mInGrain) {
             // Exiting grain window
             mInGrain = false;
+            mCurrentPulsaretMasked = false;  // Reset for next pulsaret
         }
         
-        // Generate output if in grain window
-        if (inGrainWindow) {
+        // Generate output if in grain window and not masked
+        if (inGrainWindow && !mCurrentPulsaretMasked) {
             // Normalize phase within pulsaret (0 to 1)
             double pulsaretPhase = grainPhase / mDutyCycle;
             
@@ -738,6 +743,7 @@ private:
     MaskingParams mMasking;
     int mMaskCounter;           // Current position in burst/rest cycle
     bool mMaskInBurst;          // true = emitting, false = resting
+    bool mCurrentPulsaretMasked; // true = current pulsaret should be silent
     
     // Phase 5: Stochastic cloud parameters
     StochasticParams mStochastic;

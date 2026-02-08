@@ -46,6 +46,15 @@ public:
         return mMode;
     }
     
+    // Int32-based overloads for Swift/C++ interop
+    void setAllocationModeRaw(int32_t modeRaw) {
+        mMode = static_cast<Mode>(modeRaw);
+    }
+    
+    int32_t getAllocationModeRaw() const {
+        return static_cast<int32_t>(mMode);
+    }
+    
     // Get voice counts
     int getVoiceCount() const {
         return mVoiceCount;

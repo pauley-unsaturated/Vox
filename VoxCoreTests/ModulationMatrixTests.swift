@@ -16,7 +16,7 @@ struct ModulationMatrixTests {
     func testMatrixDimensions() {
         // Use enum COUNT values to verify dimensions
         #expect(ModSource.COUNT.rawValue == 12, "Should have 12 sources")
-        #expect(ModDest.COUNT.rawValue == 12, "Should have 12 destinations")
+        #expect(ModDest.COUNT.rawValue == 16, "Should have 16 destinations")
         // 12 × 12 = 144 total routes
     }
     
