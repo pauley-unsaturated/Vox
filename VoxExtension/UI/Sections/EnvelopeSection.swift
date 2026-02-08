@@ -3,6 +3,7 @@
 //  VoxExtension
 //
 //  Vox Pulsar Synthesizer - Amplitude Envelope Section
+//  Phase 8.8: Added visual envelope curve display
 //
 
 import SwiftUI
@@ -17,6 +18,11 @@ struct EnvelopeSection: View {
     
     var body: some View {
         if let tree = parameterTree {
+            let attackParam: ObservableAUParameter = tree.ampEnvelope.ampAttack
+            let decayParam: ObservableAUParameter = tree.ampEnvelope.ampDecay
+            let sustainParam: ObservableAUParameter = tree.ampEnvelope.ampSustain
+            let releaseParam: ObservableAUParameter = tree.ampEnvelope.ampRelease
+            
             VStack(alignment: .leading, spacing: 8) {
                 // Section title - left aligned
                 Text("AMP ENVELOPE")
@@ -24,15 +30,27 @@ struct EnvelopeSection: View {
                     .foregroundColor(.synthPrimary)
                     .fixedSize()
                 
-                VStack {
+                VStack(spacing: 12) {
+                    // Phase 8.8: Visual envelope curve display
+                    EnvelopeDisplay(
+                        attack: normalizeTime(attackParam),
+                        decay: normalizeTime(decayParam),
+                        sustain: Double(sustainParam.value),
+                        release: normalizeTime(releaseParam),
+                        showGrid: true,
+                        curveColor: .synthPrimary
+                    )
+                    .frame(height: 50)
+                    .padding(.horizontal, 4)
+                    
                     HStack(alignment: .top, spacing: 16) {
-                        // AMP Envelope ADSR
+                        // AMP Envelope ADSR sliders
                         envelopeGroup(
                             params: [
-                                (tree.ampEnvelope.ampAttack, "A"),
-                                (tree.ampEnvelope.ampDecay, "D"),
-                                (tree.ampEnvelope.ampSustain, "S"),
-                                (tree.ampEnvelope.ampRelease, "R")
+                                (attackParam, "A"),
+                                (decayParam, "D"),
+                                (sustainParam, "S"),
+                                (releaseParam, "R")
                             ]
                         )
                     }
@@ -51,6 +69,20 @@ struct EnvelopeSection: View {
                     )
             )
         }
+    }
+    
+    /// Normalize time parameter (0-4000ms) to 0-1 range for display
+    private func normalizeTime(_ param: ObservableAUParameter) -> Double {
+        // Most ADSR times are in seconds (0.001 to 4.0 or similar)
+        // Use logarithmic scaling for better visual representation
+        let value = Double(param.value)
+        let minVal = Double(param.min)
+        let maxVal = Double(param.max)
+        
+        if maxVal <= minVal { return 0.5 }
+        
+        // Linear normalization (could be made logarithmic for better UX)
+        return (value - minVal) / (maxVal - minVal)
     }
     
     @ViewBuilder
