@@ -7,6 +7,7 @@
 //
 
 import Testing
+import Foundation
 @testable import VoxCore
 
 @Suite("Voice Constellation Tests")

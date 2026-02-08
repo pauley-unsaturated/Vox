@@ -7,6 +7,7 @@
 //
 
 import Testing
+import Foundation
 import Synchronization
 
 // Standalone history buffer matching DriftTimelineRenderer's logic,

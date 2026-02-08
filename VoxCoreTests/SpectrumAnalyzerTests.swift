@@ -7,6 +7,7 @@
 //
 
 import Testing
+import Foundation
 import Accelerate
 
 @Suite("Spectrum Analyzer Tests")

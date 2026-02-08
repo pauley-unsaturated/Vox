@@ -7,6 +7,7 @@
 
 import Testing
 import Synchronization
+import Foundation
 
 // Minimal AtomicScopeBuffer duplicate for testing (same as AtomicScopeBufferTests).
 private final class AtomicScopeBuffer<T>: @unchecked Sendable {

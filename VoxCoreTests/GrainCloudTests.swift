@@ -6,6 +6,7 @@
 //
 
 import Testing
+import Foundation
 import Synchronization
 
 // Minimal AtomicScopeBuffer duplicate for testing.
