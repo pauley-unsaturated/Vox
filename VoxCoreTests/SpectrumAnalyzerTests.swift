@@ -120,9 +120,11 @@ struct SpectrumAnalyzerTests {
     func testTwoTone() {
         let f1: Float = 800.0
         let f2: Float = 2400.0
-        let signal = (0..<fftSize).map { i in
-            0.5 * sin(2.0 * .pi * f1 * Float(i) / sampleRate) +
-            0.3 * sin(2.0 * .pi * f2 * Float(i) / sampleRate)
+        let signal: [Float] = (0..<fftSize).map { i in
+            let t: Float = Float(i) / sampleRate
+            let tone1: Float = 0.5 * sin(2.0 * .pi * f1 * t)
+            let tone2: Float = 0.3 * sin(2.0 * .pi * f2 * t)
+            return tone1 + tone2
         }
         let mags = computeMagnitudes(signal: signal)
         
