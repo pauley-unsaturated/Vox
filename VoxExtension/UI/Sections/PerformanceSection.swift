@@ -13,6 +13,7 @@ struct PerformanceSection: View {
     @State var parameterTree: ObservableAUParameterGroup
     var audioUnit: VoxExtensionAudioUnit?
     @State private var sequencerModel: SequencerModel?
+    @State private var playheadObserver: SequencerPlayheadObserver?
 
     var body: some View {
         VStack(spacing: 8) {
@@ -41,7 +42,7 @@ struct PerformanceSection: View {
                     .background(Color(red: 0.3, green: 0.3, blue: 0.3))
 
                 // Arp-specific controls OR Seq-specific controls
-                ArpSeqControlsView(parameterTree: parameterTree, sequencerModel: sequencerModel)
+                ArpSeqControlsView(parameterTree: parameterTree, sequencerModel: sequencerModel, playheadObserver: playheadObserver)
 
                 Divider()
                     .frame(height: 80)
@@ -63,6 +64,15 @@ struct PerformanceSection: View {
             if sequencerModel == nil {
                 sequencerModel = SequencerModel(audioUnit: audioUnit)
             }
+            // Create and start playhead observer
+            if playheadObserver == nil {
+                let observer = SequencerPlayheadObserver(audioUnit: audioUnit)
+                observer.startPolling()
+                playheadObserver = observer
+            }
+        }
+        .onDisappear {
+            playheadObserver?.stopPolling()
         }
         .padding(12)
         .background(
@@ -131,6 +141,7 @@ struct ModeControlsView: View {
 struct ArpSeqControlsView: View {
     @State var parameterTree: ObservableAUParameterGroup
     var sequencerModel: SequencerModel?
+    var playheadObserver: SequencerPlayheadObserver?
     @State private var currentPage: Int = 0
 
     var body: some View {
@@ -146,7 +157,7 @@ struct ArpSeqControlsView: View {
                 .background(Color(red: 0.3, green: 0.3, blue: 0.3))
 
             // SEQ section - always visible
-            SeqControlsSection(parameterTree: parameterTree, sequencerModel: sequencerModel, isActive: mode == 2, currentPage: $currentPage)
+            SeqControlsSection(parameterTree: parameterTree, sequencerModel: sequencerModel, playheadObserver: playheadObserver, isActive: mode == 2, currentPage: $currentPage)
         }
     }
 }
@@ -191,6 +202,7 @@ struct ArpControlsSection: View {
 struct SeqControlsSection: View {
     @State var parameterTree: ObservableAUParameterGroup
     var sequencerModel: SequencerModel?
+    var playheadObserver: SequencerPlayheadObserver?
     let isActive: Bool
     @Binding var currentPage: Int
 
@@ -220,7 +232,11 @@ struct SeqControlsSection: View {
                         .buttonStyle(PlainButtonStyle())
                     }
                 }
-                StepGridView(startStep: currentPage * 8, sequencerModel: sequencerModel)
+                StepGridView(
+                    startStep: currentPage * 8,
+                    sequencerModel: sequencerModel,
+                    playheadStep: playheadObserver?.currentStep ?? -1
+                )
             }
 
             // Transport
@@ -339,15 +355,18 @@ struct VelocityControlsView: View {
 struct StepGridView: View {
     let startStep: Int
     var sequencerModel: SequencerModel?
+    /// Current playhead step index (0-based), or -1 if not playing.
+    var playheadStep: Int = -1
 
     var body: some View {
         HStack(spacing: 2) {
             ForEach(0..<8) { index in
                 let stepIndex = startStep + index
+                let isPlayhead = (stepIndex == playheadStep)
                 if let model = sequencerModel, let step = model.step(at: stepIndex) {
-                    StepButtonView(stepNumber: stepIndex + 1, step: step)
+                    StepButtonView(stepNumber: stepIndex + 1, step: step, isPlayhead: isPlayhead)
                 } else {
-                    StepButtonPlaceholder(stepNumber: stepIndex + 1)
+                    StepButtonPlaceholder(stepNumber: stepIndex + 1, isPlayhead: isPlayhead)
                 }
             }
         }
@@ -357,6 +376,8 @@ struct StepGridView: View {
 struct StepButtonView: View {
     let stepNumber: Int
     var step: SequencerStep
+    /// Whether this step is the current playhead position.
+    var isPlayhead: Bool = false
     @State private var isDragging: Bool = false
     @State private var dragStartPitch: Int = 0
 
@@ -452,18 +473,23 @@ struct StepButtonView: View {
         .frame(width: 30, height: 55)
         .background(
             RoundedRectangle(cornerRadius: cellCornerRadius)
-                .fill(Color(red: 0.12, green: 0.12, blue: 0.12))
+                .fill(isPlayhead
+                      ? Color.orange.opacity(0.15)
+                      : Color(red: 0.12, green: 0.12, blue: 0.12))
                 .overlay(
                     RoundedRectangle(cornerRadius: cellCornerRadius)
-                        .stroke(Color(red: 0.25, green: 0.25, blue: 0.25), lineWidth: 1)
+                        .stroke(isPlayhead ? Color.orange : Color(red: 0.25, green: 0.25, blue: 0.25),
+                                lineWidth: isPlayhead ? 2 : 1)
                 )
         )
+        .animation(.easeInOut(duration: 0.08), value: isPlayhead)
     }
 }
 
 /// Placeholder for when sequencer model isn't available
 struct StepButtonPlaceholder: View {
     let stepNumber: Int
+    var isPlayhead: Bool = false
 
     private let cellCornerRadius: CGFloat = 3
 
