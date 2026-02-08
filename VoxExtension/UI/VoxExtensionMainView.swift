@@ -618,7 +618,7 @@ struct VoxExtensionMainView: View {
                 case .panel:
                     TraditionalPanelView(parameterTree: parameterTree, audioUnit: audioUnit)
                 case .navigator:
-                    NavigatorPlaceholderView()
+                    ParameterSpaceNavigatorView(parameterTree: parameterTree, audioUnit: audioUnit)
                 case .cloud:
                     CloudSculptorPlaceholderView()
                 case .trajectory:
