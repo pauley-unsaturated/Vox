@@ -195,7 +195,8 @@ public class SimplePlayEngine {
             try engine.start()
         } catch {
             isPlaying = false
-            fatalError("Could not start engine. error: \(error).")
+            print("Warning: Could not start engine. error: \(error)")
+            return
         }
         
         if avAudioUnit.wantsAudioInput {

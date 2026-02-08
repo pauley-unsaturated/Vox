@@ -1,0 +1,1921 @@
+// Swift interface for module 'VoxCore'
+import VoxCore.ADSREnvelope
+import VoxCore.Arpeggiator
+import VoxCore.DPWOscillator
+import VoxCore.DSPUtilities
+import VoxCore.LFO
+import VoxCore.MonophonicVoice
+import VoxCore.MoogLadderFilter
+import VoxCore.Oscillator
+import VoxCore.PolyBLEPOscillator
+import VoxCore.SinOscillator
+import VoxCore.StepSequencer
+import VoxCore.SyncablePhaseRamp
+
+public enum DistributionType : Int32 {
+
+    case GAUSSIAN = 0
+
+    case UNIFORM = 1
+
+    case CAUCHY = 2
+
+    case POISSON = 3
+}
+
+public struct StochasticDistribution {
+
+    public init()
+
+    public init(_ seed: Any)
+
+    public mutating func seed(_ s: Any)
+
+    public mutating func generate(_ type: Any, _ spread: Any)
+
+    public mutating func generateGaussian(_ spread: Any = cxxDefaultArg)
+
+    public mutating func generateUniform(_ spread: Any = cxxDefaultArg)
+
+    public mutating func generateCauchy(_ spread: Any = cxxDefaultArg)
+
+    public mutating func generatePoissonCentered(_ spread: Any = cxxDefaultArg)
+
+    public mutating func generatePoissonCount(_ lambda: Any = cxxDefaultArg)
+
+    public mutating func uniform01()
+
+    public mutating func gaussian01()
+
+    public mutating func generateScaled(_ type: Any, _ min: Any, _ max: Any, _ spread: Any = cxxDefaultArg)
+
+    public mutating func generateWithAmount(_ type: Any, _ amount: Any, _ spread: Any = cxxDefaultArg)
+}
+
+public typealias StochasticGenerator = StochasticDistribution
+
+public func centsToRatio(_ cents: Double) -> Double
+
+public func ratioToCents(_ ratio: Double) -> Double
+
+public func msToSamples(_ ms: Double, _ sampleRate: Double) -> Double
+
+public func samplesToMs(_ samples: Double, _ sampleRate: Double) -> Double
+
+public func dbToLinear(_ db: Double) -> Double
+
+public func linearToDb(_ linear: Double) -> Double
+
+public enum PulsaretEnvelope : Int32 {
+
+    case RECTANGULAR = 0
+
+    case GAUSSIAN = 1
+
+    case EXP_DECAY = 2
+
+    case LINEAR_ATTACK = 3
+
+    case FOF = 4
+
+    case COUNT = 5
+}
+
+public struct MaskingParams {
+
+    public init()
+
+    public init(enabled: Bool, burstLength: Int32, restLength: Int32, stochasticProb: Float)
+
+    public func getSubharmonicFactor()
+
+    public var enabled: Bool
+
+    public var burstLength: Int32
+
+    public var restLength: Int32
+
+    public var stochasticProb: Float
+}
+
+public struct StochasticParams {
+
+    public init()
+
+    public init(pitchScatterAmount: Double, pitchScatterDistribution: DistributionType, timingJitter: Double, timingDistribution: DistributionType, formantScatter: Double, formantDistribution: DistributionType, panScatter: Double, panDistribution: DistributionType, ampScatter: Double, ampDistribution: DistributionType, cloudScatter: Double, asyncMode: Bool, grainDensity: Double)
+
+    public var pitchScatterAmount: Double
+
+    public var pitchScatterDistribution: DistributionType
+
+    public var timingJitter: Double
+
+    public var timingDistribution: DistributionType
+
+    public var formantScatter: Double
+
+    public var formantDistribution: DistributionType
+
+    public var panScatter: Double
+
+    public var panDistribution: DistributionType
+
+    public var ampScatter: Double
+
+    public var ampDistribution: DistributionType
+
+    public var cloudScatter: Double
+
+    public var asyncMode: Bool
+
+    public var grainDensity: Double
+}
+
+public struct GrainState {
+
+    public init()
+
+    public init(pitchOffsetCents: Double, timingOffsetSamples: Double, formantOffsetHz: Double, panOffset: Double, ampMultiplier: Double)
+
+    public var pitchOffsetCents: Double
+
+    public var timingOffsetSamples: Double
+
+    public var formantOffsetHz: Double
+
+    public var panOffset: Double
+
+    public var ampMultiplier: Double
+}
+
+public struct PulsarOscillator {
+
+    public init(_ sampleRate: Any = cxxDefaultArg)
+
+    public enum Shape : Int32 {
+
+        case GAUSSIAN = 0
+
+        case RAISED_COSINE = 1
+
+        case SINE = 2
+
+        case TRIANGLE = 3
+    }
+
+    public mutating func setSampleRate(_ sampleRate: Any)
+
+    public mutating func setFrequency(_ frequency: Any)
+
+    public func getFrequency()
+
+    public mutating func setDutyCycle(_ dutyCycle: Any)
+
+    public func getDutyCycle()
+
+    public mutating func setShape(_ shape: Any)
+
+    public func getShape()
+
+    public mutating func setPulsaretEnvelope(_ envelope: Any)
+
+    public func getPulsaretEnvelope()
+
+    public mutating func setEnvelopeParam(_ param: Any)
+
+    public func getEnvelopeParam()
+
+    public mutating func setFormantTrack(_ track: Any)
+
+    public func getFormantTrack()
+
+    public func getImplicitFormant()
+
+    public mutating func setEdgeFactor(_ factor: Any)
+
+    public func getEdgeFactor()
+
+    public mutating func setMaskingParams(_ params: Any)
+
+    public func getMaskingParams()
+
+    public mutating func setMaskingEnabled(_ enabled: Any)
+
+    public func getMaskingEnabled()
+
+    public mutating func setBurstPattern(_ burstLength: Any, _ restLength: Any)
+
+    public func getBurstLength()
+
+    public func getRestLength()
+
+    public mutating func setStochasticMaskProb(_ prob: Any)
+
+    public func getStochasticMaskProb()
+
+    public mutating func setStochasticParams(_ params: Any)
+
+    public func getStochasticParams()
+
+    public mutating func setPitchScatter(_ cents: Any, _ dist: Any = cxxDefaultArg)
+
+    public func getPitchScatterAmount()
+
+    public func getPitchScatterDistribution()
+
+    public mutating func setTimingJitter(_ ms: Any, _ dist: Any = cxxDefaultArg)
+
+    public func getTimingJitter()
+
+    public func getTimingDistribution()
+
+    public mutating func setFormantScatter(_ hz: Any, _ dist: Any = cxxDefaultArg)
+
+    public func getFormantScatter()
+
+    public func getFormantDistribution()
+
+    public mutating func setPanScatter(_ amount: Any, _ dist: Any = cxxDefaultArg)
+
+    public func getPanScatter()
+
+    public func getPanDistribution()
+
+    public mutating func setAmpScatter(_ db: Any, _ dist: Any = cxxDefaultArg)
+
+    public func getAmpScatter()
+
+    public func getAmpDistribution()
+
+    public mutating func setCloudScatter(_ amount: Any)
+
+    public func getCloudScatter()
+
+    public mutating func setAsyncMode(_ enabled: Any)
+
+    public func getAsyncMode()
+
+    public mutating func setGrainDensity(_ grainsPerSecond: Any)
+
+    public func getGrainDensity()
+
+    public func getCurrentGrainState()
+
+    public mutating func seedRNG(_ seed: Any)
+
+    public mutating func reset()
+
+    public mutating func process()
+
+    public mutating func processBlock(_ output: Any, _ numSamples: Any)
+}
+
+public struct FormantFilter {
+
+    public init(_ sampleRate: Any = cxxDefaultArg)
+
+    public mutating func setSampleRate(_ sampleRate: Any)
+
+    public mutating func setFormant1Frequency(_ freq: Any)
+
+    public mutating func setFormant2Frequency(_ freq: Any)
+
+    public mutating func setFormant1Q(_ q: Any)
+
+    public mutating func setFormant2Q(_ q: Any)
+
+    public mutating func setFormant1Gain(_ gain: Any)
+
+    public mutating func setFormant2Gain(_ gain: Any)
+
+    public mutating func setDryGain(_ gain: Any)
+
+    public mutating func setVowelMorph(_ morph: Any)
+
+    public mutating func reset()
+
+    public mutating func process(_ input: Any)
+
+    public mutating func processBlock(_ samples: Any, _ numSamples: Any)
+}
+
+public struct VoxVoiceParameters {
+
+    public init()
+
+    public init(masterVolume: Double, dutyCycle: Double, pulsaretShape: Int32, pulsaretEnvelope: Int32, envelopeParam: Double, formantTrack: Double, edgeFactor: Double, maskingEnabled: Bool, burstLength: Int32, restLength: Int32, stochasticMaskProb: Double, formant1Freq: Double, formant2Freq: Double, formant1Q: Double, formant2Q: Double, vowelMorph: Double, formantMix: Double, useVowelMorph: Bool, ampAttack: Double, ampDecay: Double, ampSustain: Double, ampRelease: Double, pitchBendSemitones: Double, detuneHz: Double, glideEnabled: Bool, glideTime: Double, lfoRate: Double, lfoWaveform: Int32, lfoPhaseOffset: Double, lfoRetrigger: Bool, lfoPhaseSpread: Double, modAttack: Double, modDecay: Double, modSustain: Double, modRelease: Double, lfoToPitch: Double, lfoToFormant1: Double, lfoToFormant2: Double, lfoToDutyCycle: Double, modEnvToPitch: Double, modEnvToFormant1: Double, modEnvToFormant2: Double, modEnvToDutyCycle: Double, velocitySensitivity: Double, velocityToModEnv: Double, aftertouchToPitch: Double, aftertouchToFormant1: Double, aftertouchToFormant2: Double, aftertouchToLFOAmount: Double)
+
+    public var masterVolume: Double
+
+    public var dutyCycle: Double
+
+    public var pulsaretShape: Int32
+
+    public var pulsaretEnvelope: Int32
+
+    public var envelopeParam: Double
+
+    public var formantTrack: Double
+
+    public var edgeFactor: Double
+
+    public var maskingEnabled: Bool
+
+    public var burstLength: Int32
+
+    public var restLength: Int32
+
+    public var stochasticMaskProb: Double
+
+    public var formant1Freq: Double
+
+    public var formant2Freq: Double
+
+    public var formant1Q: Double
+
+    public var formant2Q: Double
+
+    public var vowelMorph: Double
+
+    public var formantMix: Double
+
+    public var useVowelMorph: Bool
+
+    public var ampAttack: Double
+
+    public var ampDecay: Double
+
+    public var ampSustain: Double
+
+    public var ampRelease: Double
+
+    public var pitchBendSemitones: Double
+
+    public var detuneHz: Double
+
+    public var glideEnabled: Bool
+
+    public var glideTime: Double
+
+    public var lfoRate: Double
+
+    public var lfoWaveform: Int32
+
+    public var lfoPhaseOffset: Double
+
+    public var lfoRetrigger: Bool
+
+    public var lfoPhaseSpread: Double
+
+    public var modAttack: Double
+
+    public var modDecay: Double
+
+    public var modSustain: Double
+
+    public var modRelease: Double
+
+    public var lfoToPitch: Double
+
+    public var lfoToFormant1: Double
+
+    public var lfoToFormant2: Double
+
+    public var lfoToDutyCycle: Double
+
+    public var modEnvToPitch: Double
+
+    public var modEnvToFormant1: Double
+
+    public var modEnvToFormant2: Double
+
+    public var modEnvToDutyCycle: Double
+
+    public var velocitySensitivity: Double
+
+    public var velocityToModEnv: Double
+
+    public var aftertouchToPitch: Double
+
+    public var aftertouchToFormant1: Double
+
+    public var aftertouchToFormant2: Double
+
+    public var aftertouchToLFOAmount: Double
+}
+
+public struct VoxVoice {
+
+    public init(_ sampleRate: Any = cxxDefaultArg)
+
+    public mutating func setSampleRate(_ sampleRate: Any)
+
+    public mutating func setParameters(_ params: Any)
+
+    public func getParameters()
+
+    public mutating func noteOn(_ noteNumber: Any, _ velocity: Any = cxxDefaultArg)
+
+    public mutating func noteOff(_ noteNumber: Any = cxxDefaultArg)
+
+    public mutating func setPitchBend(_ semitones: Any)
+
+    public func isActive()
+
+    public mutating func reset()
+
+    public mutating func process()
+
+    public mutating func processBlock(_ output: Any, _ numSamples: Any)
+
+    public mutating func processBlockAdd(_ output: Any, _ numSamples: Any)
+
+    public func getEnvelopeState()
+
+    public func getCurrentNote()
+
+    public mutating func setVoiceIndex(_ index: Any)
+
+    public func getVoiceIndex()
+
+    public func getLFOValue()
+
+    public mutating func getLFOMutating()
+
+    public func getLFO()
+
+    public func getModEnvelopeValue()
+
+    public func getModEnvelopeState()
+
+    public mutating func getModEnvelopeMutating()
+
+    public func getModEnvelope()
+
+    public mutating func setAftertouch(_ pressure: Any)
+
+    public func getAftertouch()
+
+    public mutating func setDetuneOffset(_ cents: Any)
+
+    public func getDetuneOffset()
+
+    public mutating func setTimeOffset(_ ms: Any)
+
+    public func getTimeOffset()
+
+    public mutating func setFormantOffset(_ hz: Any)
+
+    public func getFormantOffset()
+
+    public mutating func setPan(_ pan: Any)
+
+    public func getPan()
+
+    public mutating func setLFOPhaseOffset(_ offset: Any)
+
+    public func getLFOPhaseOffset()
+}
+
+public struct VoiceAllocator {
+
+    public init(_ voiceCount: Any = cxxDefaultArg)
+
+    public enum Mode : Int32 {
+
+        case RoundRobin = 0
+
+        case LowestNote = 1
+
+        case HighestNote = 2
+
+        case LastPlayed = 3
+    }
+
+    public mutating func setAllocationMode(_ mode: Any)
+
+    public func getAllocationMode()
+
+    public mutating func setAllocationModeRaw(_ modeRaw: Any)
+
+    public func getAllocationModeRaw()
+
+    public func getVoiceCount()
+
+    public func getActiveVoiceCount()
+
+    public func getFreeVoiceCount()
+
+    public mutating func allocate(_ note: Any)
+
+    public mutating func deallocate(_ voiceIndex: Any)
+
+    public func findVoicePlayingNote(_ note: Any)
+
+    public func isVoiceActive(_ voiceIndex: Any)
+
+    public func getNoteForVoice(_ voiceIndex: Any)
+
+    public func getAgeForVoice(_ voiceIndex: Any)
+
+    public func getOldestActiveVoice()
+
+    public func getNewestActiveVoice()
+
+    public mutating func reset()
+}
+
+public struct VoicePool {
+
+    public init(_ voiceCount: Any = cxxDefaultArg, _ sampleRate: Any = cxxDefaultArg)
+
+    public enum StealingMode : Int32 {
+
+        case Oldest = 0
+
+        case Quietest = 1
+    }
+
+    public enum ConstellationMode : Int32 {
+
+        case Unison = 0
+
+        case Ensemble = 1
+
+        case Choir = 2
+
+        case Random = 3
+    }
+
+    public mutating func setSampleRate(_ sampleRate: Any)
+
+    public mutating func setParameters(_ params: Any)
+
+    public func getParameters()
+
+    public mutating func setDetuneSpread(_ cents: Any)
+
+    public func getDetuneSpread()
+
+    public mutating func setTimeOffsetSpread(_ ms: Any)
+
+    public func getTimeOffsetSpread()
+
+    public mutating func setFormantOffsetSpread(_ hz: Any)
+
+    public func getFormantOffsetSpread()
+
+    public mutating func setPanSpread(_ spread: Any)
+
+    public func getPanSpread()
+
+    public mutating func setLFOPhaseSpread(_ degrees: Any)
+
+    public func getLFOPhaseSpread()
+
+    public mutating func setConstellationMode(_ mode: Any)
+
+    public func getConstellationMode()
+
+    public mutating func setUnisonVoices(_ count: Any)
+
+    public func getUnisonVoices()
+
+    public func getVoiceCount()
+
+    public func getActiveVoiceCount()
+
+    public func isNoteActive(_ note: Any)
+
+    public mutating func setAllocationMode(_ mode: Any)
+
+    public func getAllocationMode()
+
+    public mutating func setStealingEnabled(_ enabled: Any)
+
+    public func isStealingEnabled()
+
+    public mutating func setStealingMode(_ mode: Any)
+
+    public func getStealingMode()
+
+    public mutating func noteOn(_ note: Any, _ velocity: Any)
+
+    public mutating func noteOff(_ note: Any)
+
+    public mutating func allNotesOff()
+
+    public mutating func setPitchBend(_ semitones: Any)
+
+    public mutating func setPolyAftertouch(_ note: Any, _ pressure: Any)
+
+    public mutating func reset()
+
+    public mutating func process()
+
+    public mutating func processBlock(_ output: Any, _ numSamples: Any)
+
+    public mutating func processBlockStereo(_ left: Any, _ right: Any, _ numSamples: Any)
+
+    public func getAllocator()
+
+    public mutating func getVoiceMutating(_ index: Any)
+
+    public func getVoice(_ index: Any)
+}
+
+public enum GlobalLFODestination : Int32 {
+
+    case None = 0
+
+    case Pitch = 1
+
+    case Formant1 = 2
+
+    case Formant2 = 3
+
+    case VowelMorph = 4
+
+    case DutyCycle = 5
+
+    case Pan = 6
+
+    case Amplitude = 7
+}
+
+public struct GlobalLFO {
+
+    public init(_ sampleRate: Any = cxxDefaultArg)
+
+    public mutating func setSampleRate(_ sampleRate: Any)
+
+    public mutating func setRate(_ rateHz: Any)
+
+    public func getRate()
+
+    public mutating func setWaveform(_ waveform: Any)
+
+    public func getWaveform()
+
+    public mutating func setSyncMode(_ mode: Any)
+
+    public func getSyncMode()
+
+    public mutating func setBeatDivision(_ division: Any)
+
+    public func getBeatDivision()
+
+    public mutating func setTempo(_ bpm: Any)
+
+    public func getTempo()
+
+    public mutating func setPhaseOffset(_ offset: Any)
+
+    public func getPhaseOffset()
+
+    public mutating func setAmount(_ amount: Any)
+
+    public func getAmount()
+
+    public mutating func setDestination(_ dest: Any)
+
+    public func getDestination()
+
+    public mutating func reset()
+
+    public mutating func process()
+
+    public func getCurrentValue()
+
+    public func getModulatedOutput()
+
+    public func getModulationFor(_ dest: Any)
+
+    public mutating func getLFOMutating()
+
+    public func getLFO()
+}
+
+public struct GlobalLFOBank {
+
+    public init(_ sampleRate: Any = cxxDefaultArg)
+
+    public mutating func setSampleRate(_ sampleRate: Any)
+
+    public mutating func reset()
+
+    public mutating func process()
+
+    public mutating func getLFOMutating(_ index: Any)
+
+    public func getLFO(_ index: Any)
+
+    public mutating func lfo1Mutating()
+
+    public mutating func lfo2Mutating()
+
+    public func lfo1()
+
+    public func lfo2()
+
+    public func getTotalModulationFor(_ dest: Any)
+
+    public mutating func setTempo(_ bpm: Any)
+}
+
+public struct DriftGenerator {
+
+    public init(_ sampleRate: Any = cxxDefaultArg)
+
+    public enum Mode : Int32 {
+
+        case RandomWalk = 0
+
+        case Breath = 1
+
+        case Tide = 2
+    }
+
+    public mutating func setSampleRate(_ sampleRate: Any)
+
+    public mutating func setRate(_ rateHz: Any)
+
+    public func getRate()
+
+    public mutating func setAmount(_ amount: Any)
+
+    public func getAmount()
+
+    public mutating func setMode(_ mode: Any)
+
+    public func getMode()
+
+    public mutating func reset()
+
+    public mutating func process()
+
+    public func getCurrentValue()
+
+    public func getRawValue()
+}
+
+public struct ChaosGenerator {
+
+    public init(_ sampleRate: Any = cxxDefaultArg)
+
+    public enum ChaosType : Int32 {
+
+        case Lorenz = 0
+
+        case Henon = 1
+    }
+
+    public enum Output : Int32 {
+
+        case X = 0
+
+        case Y = 1
+
+        case Z = 2
+
+        case XY_Mix = 3
+    }
+
+    public mutating func setSampleRate(_ sampleRate: Any)
+
+    public mutating func setType(_ type: Any)
+
+    public func getType()
+
+    public mutating func setOutput(_ output: Any)
+
+    public func getOutput()
+
+    public mutating func setRate(_ rate: Any)
+
+    public func getRate()
+
+    public mutating func setAmount(_ amount: Any)
+
+    public func getAmount()
+
+    public mutating func setBlend(_ blend: Any)
+
+    public func getBlend()
+
+    public mutating func setLorenzSigma(_ sigma: Any)
+
+    public mutating func setLorenzRho(_ rho: Any)
+
+    public mutating func setLorenzBeta(_ beta: Any)
+
+    public mutating func setHenonA(_ a: Any)
+
+    public mutating func setHenonB(_ b: Any)
+
+    public mutating func reset()
+
+    public mutating func process()
+
+    public func getCurrentValue()
+
+    public func getRawValue()
+
+    public func getLorenzState(_ x: Any, _ y: Any, _ z: Any)
+
+    public func getHenonState(_ x: Any, _ y: Any)
+
+    public func isStateValid()
+}
+
+public struct FormantSequencer {
+
+    public init(_ sampleRate: Any = cxxDefaultArg)
+
+    public enum SyncMode : Int32 {
+
+        case Free = 0
+
+        case TempoSync = 1
+    }
+
+    public enum BeatDivision : Int32 {
+
+        case Quarter = 0
+
+        case Eighth = 1
+
+        case Sixteenth = 2
+
+        case ThirtySecond = 3
+
+        case DottedQuarter = 4
+
+        case DottedEighth = 5
+
+        case TripletQuarter = 6
+
+        case TripletEighth = 7
+
+        case Half = 8
+
+        case Whole = 9
+    }
+
+    public enum GlideCurve : Int32 {
+
+        case Linear = 0
+
+        case Exponential = 1
+    }
+
+    public mutating func setSampleRate(_ sampleRate: Any)
+
+    public mutating func setStepValue(_ step: Any, _ value: Any)
+
+    public func getStepValue(_ step: Any)
+
+    public mutating func setPattern(_ values: Any, _ count: Any)
+
+    public mutating func setStepCount(_ count: Any)
+
+    public func getStepCount()
+
+    public mutating func setRate(_ rateHz: Any)
+
+    public func getRate()
+
+    public mutating func setSyncMode(_ mode: Any)
+
+    public func getSyncMode()
+
+    public mutating func setBeatDivision(_ division: Any)
+
+    public func getBeatDivision()
+
+    public mutating func setTempo(_ bpm: Any)
+
+    public func getTempo()
+
+    public mutating func setGlide(_ glidePercent: Any)
+
+    public func getGlide()
+
+    public mutating func setGlideCurve(_ curve: Any)
+
+    public func getGlideCurve()
+
+    public mutating func start()
+
+    public mutating func stop()
+
+    public func isRunning()
+
+    public mutating func reset()
+
+    public mutating func setCurrentStep(_ step: Any)
+
+    public func getCurrentStep()
+
+    public mutating func process()
+
+    public func getCurrentValue()
+
+    public func getStepPhase()
+}
+
+public enum ModDestination : Int32 {
+
+    case None = 0
+
+    case Pitch = 1
+
+    case Formant1 = 2
+
+    case Formant2 = 3
+
+    case VowelMorph = 4
+
+    case DutyCycle = 5
+
+    case Pan = 6
+
+    case Amplitude = 7
+
+    case GrainDensity = 8
+
+    case CloudScatter = 9
+}
+
+public struct GlobalModulationAmounts {
+
+    public init()
+
+    public init(lfo1ToPitch: Double, lfo1ToFormant1: Double, lfo1ToFormant2: Double, lfo1ToVowelMorph: Double, lfo1ToDutyCycle: Double, lfo1ToPan: Double, lfo2ToPitch: Double, lfo2ToFormant1: Double, lfo2ToFormant2: Double, lfo2ToVowelMorph: Double, lfo2ToDutyCycle: Double, lfo2ToPan: Double, driftToPitch: Double, driftToFormant1: Double, driftToFormant2: Double, driftToVowelMorph: Double, driftToDutyCycle: Double, driftToPan: Double, chaosToPitch: Double, chaosToFormant1: Double, chaosToFormant2: Double, chaosToVowelMorph: Double, chaosToDutyCycle: Double, chaosToPan: Double, sequencerToVowelMorph: Double)
+
+    public var lfo1ToPitch: Double
+
+    public var lfo1ToFormant1: Double
+
+    public var lfo1ToFormant2: Double
+
+    public var lfo1ToVowelMorph: Double
+
+    public var lfo1ToDutyCycle: Double
+
+    public var lfo1ToPan: Double
+
+    public var lfo2ToPitch: Double
+
+    public var lfo2ToFormant1: Double
+
+    public var lfo2ToFormant2: Double
+
+    public var lfo2ToVowelMorph: Double
+
+    public var lfo2ToDutyCycle: Double
+
+    public var lfo2ToPan: Double
+
+    public var driftToPitch: Double
+
+    public var driftToFormant1: Double
+
+    public var driftToFormant2: Double
+
+    public var driftToVowelMorph: Double
+
+    public var driftToDutyCycle: Double
+
+    public var driftToPan: Double
+
+    public var chaosToPitch: Double
+
+    public var chaosToFormant1: Double
+
+    public var chaosToFormant2: Double
+
+    public var chaosToVowelMorph: Double
+
+    public var chaosToDutyCycle: Double
+
+    public var chaosToPan: Double
+
+    public var sequencerToVowelMorph: Double
+}
+
+public struct GlobalModulationValues {
+
+    public init()
+
+    public init(totalPitchMod: Double, totalFormant1Mod: Double, totalFormant2Mod: Double, totalVowelMorphMod: Double, totalDutyCycleMod: Double, totalPanMod: Double, lfo1Value: Double, lfo2Value: Double, driftValue: Double, chaosValue: Double, sequencerValue: Double)
+
+    public var totalPitchMod: Double
+
+    public var totalFormant1Mod: Double
+
+    public var totalFormant2Mod: Double
+
+    public var totalVowelMorphMod: Double
+
+    public var totalDutyCycleMod: Double
+
+    public var totalPanMod: Double
+
+    public var lfo1Value: Double
+
+    public var lfo2Value: Double
+
+    public var driftValue: Double
+
+    public var chaosValue: Double
+
+    public var sequencerValue: Double
+}
+
+public struct GlobalModulation {
+
+    public init(_ sampleRate: Any = cxxDefaultArg)
+
+    public mutating func setSampleRate(_ sampleRate: Any)
+
+    public mutating func reset()
+
+    public mutating func setRoutingAmounts(_ amounts: Any)
+
+    public func getRoutingAmounts()
+
+    public mutating func getRoutingAmountsMutating()
+
+    public mutating func getLFOBankMutating()
+
+    public func getLFOBank()
+
+    public mutating func getLFO1Mutating()
+
+    public mutating func getLFO2Mutating()
+
+    public func getLFO1()
+
+    public func getLFO2()
+
+    public mutating func getDriftMutating()
+
+    public func getDrift()
+
+    public mutating func getChaosMutating()
+
+    public func getChaos()
+
+    public mutating func getSequencerMutating()
+
+    public func getSequencer()
+
+    public mutating func process()
+
+    public func getValues()
+
+    public func getModulationFor(_ dest: Any)
+
+    public mutating func setTempo(_ bpm: Any)
+}
+
+public struct CloudParameters {
+
+    public init()
+
+    public init(cloudScatter: Double, pitchScatter: Double, pitchDistribution: DistributionType, timingJitter: Double, timingDistribution: DistributionType, formantScatter: Double, formantDistribution: DistributionType, panScatter: Double, panDistribution: DistributionType, ampScatter: Double, ampDistribution: DistributionType, grainDensity: Double, densityHz: Double)
+
+    public var cloudScatter: Double
+
+    public var pitchScatter: Double
+
+    public var pitchDistribution: DistributionType
+
+    public var timingJitter: Double
+
+    public var timingDistribution: DistributionType
+
+    public var formantScatter: Double
+
+    public var formantDistribution: DistributionType
+
+    public var panScatter: Double
+
+    public var panDistribution: DistributionType
+
+    public var ampScatter: Double
+
+    public var ampDistribution: DistributionType
+
+    public var grainDensity: Double
+
+    public var densityHz: Double
+}
+
+public struct GrainScatter {
+
+    public init()
+
+    public init(pitchCents: Double, timingMs: Double, formant1Hz: Double, formant2Hz: Double, panOffset: Double, ampDB: Double)
+
+    public var pitchCents: Double
+
+    public var timingMs: Double
+
+    public var formant1Hz: Double
+
+    public var formant2Hz: Double
+
+    public var panOffset: Double
+
+    public var ampDB: Double
+}
+
+public struct StochasticCloud {
+
+    public init()
+
+    public mutating func setParameters(_ params: Any)
+
+    public func getParameters()
+
+    public mutating func setCloudScatter(_ amount: Any)
+
+    public mutating func setPitchScatter(_ cents: Any, _ dist: Any = cxxDefaultArg)
+
+    public mutating func setTimingJitter(_ ms: Any, _ dist: Any = cxxDefaultArg)
+
+    public mutating func setFormantScatter(_ hz: Any, _ dist: Any = cxxDefaultArg)
+
+    public mutating func setPanScatter(_ amount: Any, _ dist: Any = cxxDefaultArg)
+
+    public mutating func setAmpScatter(_ dB: Any, _ dist: Any = cxxDefaultArg)
+
+    public mutating func setGrainDensity(_ mix: Any, _ hz: Any)
+
+    public mutating func generateGrainScatter()
+
+    public static func dbToLinear(_ dB: Any)
+
+    public static func centsToRatio(_ cents: Any)
+
+    public func getEffectiveGrainPeriod(_ oscillatorFreq: Any, _ sampleRate: Any)
+
+    public mutating func seed(_ s: Any)
+}
+
+public enum ModSource : Int32 {
+
+    case Env1 = 0
+
+    case Env2 = 1
+
+    case LFO1 = 2
+
+    case LFO2 = 3
+
+    case Drift = 4
+
+    case Chaos = 5
+
+    case StepSeq = 6
+
+    case Velocity = 7
+
+    case Aftertouch = 8
+
+    case ModWheel = 9
+
+    case NoteNum = 10
+
+    case Random = 11
+
+    case COUNT = 12
+}
+
+public let kModSourceCount: Int32
+
+public enum ModDest : Int32 {
+
+    case Pitch = 0
+
+    case F1 = 1
+
+    case F2 = 2
+
+    case VowelMorph = 3
+
+    case DutyCycle = 4
+
+    case GrainDensity = 5
+
+    case CloudScatter = 6
+
+    case Pan = 7
+
+    case Amp = 8
+
+    case LFO1Rate = 9
+
+    case LFO2Rate = 10
+
+    case ChaosRate = 11
+
+    case PulsaretEnvParam = 12
+
+    case FormantTrack = 13
+
+    case EdgeFactor = 14
+
+    case MaskProb = 15
+
+    case COUNT = 16
+}
+
+public let kModDestCount: Int32
+
+public enum ModCurve : Int32 {
+
+    case Linear = 0
+
+    case Exponential = 1
+
+    case Logarithmic = 2
+
+    case SCurve = 3
+
+    case COUNT = 4
+}
+
+public struct ModRoute {
+
+    public init()
+
+    public init(amount: Double, enabled: Bool, curve: ModCurve, via: ModSource)
+
+    public func isActive()
+
+    public var amount: Double
+
+    public var enabled: Bool
+
+    public var curve: ModCurve
+
+    public var via: ModSource
+}
+
+public struct ModulationMatrix {
+
+    public init()
+
+    public mutating func getRouteMutating(_ src: Any, _ dst: Any)
+
+    public func getRoute(_ src: Any, _ dst: Any)
+
+    public mutating func getRouteByIndexMutating(_ index: Any)
+
+    public func getRouteByIndex(_ index: Any)
+
+    public mutating func setAmount(_ src: Any, _ dst: Any, _ amount: Any)
+
+    public func getAmount(_ src: Any, _ dst: Any)
+
+    public mutating func setEnabled(_ src: Any, _ dst: Any, _ enabled: Any)
+
+    public func isEnabled(_ src: Any, _ dst: Any)
+
+    public mutating func setCurve(_ src: Any, _ dst: Any, _ curve: Any)
+
+    public func getCurve(_ src: Any, _ dst: Any)
+
+    public mutating func setVia(_ src: Any, _ dst: Any, _ via: Any)
+
+    public func getVia(_ src: Any, _ dst: Any)
+
+    public func hasVia(_ src: Any, _ dst: Any)
+
+    public static func applyCurve(_ value: Any, _ curve: Any)
+
+    public mutating func setSourceValue(_ src: Any, _ value: Any)
+
+    public func getSourceValue(_ src: Any)
+
+    public mutating func setSourceValues(_ values: Any)
+
+    public func getModulationValue(_ dst: Any)
+
+    public func getAllDestinationValues()
+
+    public mutating func reset()
+
+    public mutating func clearAllRoutes()
+
+    public struct SerializedRoute {
+
+        public init()
+
+        public init(source: Int32, dest: Int32, amount: Double, enabled: Bool, curve: Int32, via: Int32)
+
+        public var source: Int32
+
+        public var dest: Int32
+
+        public var amount: Double
+
+        public var enabled: Bool
+
+        public var curve: Int32
+
+        public var via: Int32
+    }
+
+    public func serialize()
+
+    public mutating func deserialize(_ data: Any)
+
+    public func getActiveRouteCount()
+
+    public func hasActiveRoutesTo(_ dst: Any)
+
+    public func hasActiveRoutesFrom(_ src: Any)
+
+    public static func getSourceName(_ src: Any)
+
+    public static func getDestName(_ dst: Any)
+
+    public static func getCurveName(_ curve: Any)
+}
+
+public struct ADSREnvelope {
+
+    public init(_ sampleRate: Any = cxxDefaultArg)
+
+    public enum State : Int32 {
+
+        case IDLE = 0
+
+        case ATTACK = 1
+
+        case DECAY = 2
+
+        case SUSTAIN = 3
+
+        case RELEASE = 4
+    }
+
+    public mutating func setSampleRate(_ sampleRate: Any)
+
+    public mutating func setAttackTime(_ seconds: Any)
+
+    public mutating func setDecayTime(_ seconds: Any)
+
+    public mutating func setSustainLevel(_ level: Any)
+
+    public mutating func setReleaseTime(_ seconds: Any)
+
+    public func getAttackTime()
+
+    public func getDecayTime()
+
+    public func getSustainLevel()
+
+    public func getReleaseTime()
+
+    public func getState()
+
+    public func getCurrentLevel()
+
+    public mutating func noteOn()
+
+    public mutating func noteOff()
+
+    public mutating func reset()
+
+    public mutating func process()
+
+    public mutating func processBlock(_ output: Any, _ numSamples: Any)
+}
+
+public struct Arpeggiator {
+
+    public init(_ sampleRate: Any = cxxDefaultArg)
+
+    public mutating func reset()
+}
+
+public struct DPWOscillator {
+
+    public init(_ sampleRate: Any = cxxDefaultArg)
+
+    public mutating func setWaveform(_ waveform: Any)
+
+    public func getWaveform()
+
+    public mutating func reset()
+
+    public mutating func process()
+
+    public typealias WaveformType = Oscillator.WaveformType.Type
+}
+
+public struct DSPUtilities {
+
+    public init()
+
+    public static func clamp(_ value: Any, _ min: Any, _ max: Any)
+
+    public static func tanh_approx(_ x: Any)
+}
+
+public struct LFO {
+
+    public init(_ sampleRate: Any = cxxDefaultArg)
+
+    public enum Waveform : Int32 {
+
+        case SINE = 0
+
+        case TRIANGLE = 1
+
+        case SAW = 2
+
+        case SQUARE = 3
+
+        case SAMPLE_AND_HOLD = 4
+
+        case RANDOM = 5
+
+        case NOISE = 6
+    }
+
+    public enum SyncMode : Int32 {
+
+        case FREE = 0
+
+        case FREE_RUN = 1
+
+        case TEMPO_SYNC = 2
+
+        case BEAT_SYNC = 3
+    }
+
+    public enum BeatDivision : Int32 {
+
+        case FOUR_BARS = 0
+
+        case TWO_BARS = 1
+
+        case WHOLE = 2
+
+        case HALF = 3
+
+        case HALF_TRIPLET = 4
+
+        case QUARTER = 5
+
+        case QUARTER_DOT = 6
+
+        case QUARTER_TRIPLET = 7
+
+        case EIGHTH = 8
+
+        case EIGHTH_DOT = 9
+
+        case EIGHTH_TRIPLET = 10
+
+        case SIXTEENTH = 11
+
+        case SIXTEENTH_DOT = 12
+
+        case SIXTEENTH_TRIPLET = 13
+
+        case THIRTY_SECOND = 14
+
+        case THIRTYSECOND = 15
+
+        case DOTTED_HALF = 16
+
+        case DOTTED_QUARTER = 17
+
+        case DOTTED_EIGHTH = 18
+
+        case TRIPLET_HALF = 19
+
+        case TRIPLET_QUARTER = 20
+
+        case TRIPLET_EIGHTH = 21
+    }
+
+    public enum RetriggerMode : Int32 {
+
+        case FREE = 0
+
+        case FREE_RUN = 1
+
+        case NOTE_ON = 2
+
+        case BEAT = 3
+    }
+
+    public mutating func setSampleRate(_ sampleRate: Any)
+
+    public mutating func setRate(_ rateHz: Any)
+
+    public func getRate()
+
+    public mutating func setWaveform(_ waveform: Any)
+
+    public func getWaveform()
+
+    public mutating func reset()
+
+    public mutating func setFrequency(_ freq: Any)
+
+    public func getFrequency()
+
+    public mutating func setSyncMode(_ mode: Any)
+
+    public func getSyncMode()
+
+    public mutating func setBeatDivision(_ division: Any)
+
+    public func getBeatDivision()
+
+    public mutating func setTempo(_ bpm: Any)
+
+    public func getTempo()
+
+    public mutating func setPhaseOffset(_ offset: Any)
+
+    public func getPhaseOffset()
+
+    public mutating func setRetriggerMode(_ mode: Any)
+
+    public func getRetriggerMode()
+
+    public mutating func retrigger()
+
+    public mutating func setDelayTime(_ seconds: Any)
+
+    public func getDelayTime()
+
+    public mutating func setSmoothingCutoff(_ cutoffHz: Any)
+
+    public func getSmoothingCutoff()
+
+    public mutating func process()
+}
+
+public struct MonophonicVoice {
+
+    public init(_ sampleRate: Any = cxxDefaultArg, _ type: Any = cxxDefaultArg)
+
+    public enum OscillatorType : Int32 {
+
+        case POLYBLEP = 0
+
+        case DPW = 1
+    }
+
+    public struct VoiceParameters {
+
+        public init()
+
+        public init(masterVolume: Double, osc1Level: Double, osc2Level: Double, subOscLevel: Double, noiseLevel: Double, osc1Waveform: Oscillator.WaveformType, osc2Waveform: Oscillator.WaveformType, osc2Detune: Double, osc1Octave: Int32, osc2Octave: Int32, subOscOctave: Int32, pulseWidth: Double, lpFilterCutoff: Double, lpFilterResonance: Double, lpFilterKeyTracking: Double, lpFilterEnvelopeAmount: Double, lpFilterVelocityAmount: Double, ampAttack: Double, ampDecay: Double, ampSustain: Double, ampRelease: Double, filterAttack: Double, filterDecay: Double, filterSustain: Double, filterRelease: Double, lfoRate: Double, lfoWaveform: LFO.Waveform, lfoPitchAmount: Double, lfoFilterAmount: Double, lfoPWMAmount: Double, lfoSyncMode: LFO.SyncMode, lfoTempoRate: LFO.BeatDivision, lfoRetrigger: LFO.RetriggerMode, lfoPhase: Double, lfoDelay: Double, pitchBendRange: Double, legatoMode: Bool, glideMode: Int32, glideTime: Double)
+
+        public var masterVolume: Double
+
+        public var osc1Level: Double
+
+        public var osc2Level: Double
+
+        public var subOscLevel: Double
+
+        public var noiseLevel: Double
+
+        public var osc1Waveform: Oscillator.WaveformType
+
+        public var osc2Waveform: Oscillator.WaveformType
+
+        public var osc2Detune: Double
+
+        public var osc1Octave: Int32
+
+        public var osc2Octave: Int32
+
+        public var subOscOctave: Int32
+
+        public var pulseWidth: Double
+
+        public var lpFilterCutoff: Double
+
+        public var lpFilterResonance: Double
+
+        public var lpFilterKeyTracking: Double
+
+        public var lpFilterEnvelopeAmount: Double
+
+        public var lpFilterVelocityAmount: Double
+
+        public var ampAttack: Double
+
+        public var ampDecay: Double
+
+        public var ampSustain: Double
+
+        public var ampRelease: Double
+
+        public var filterAttack: Double
+
+        public var filterDecay: Double
+
+        public var filterSustain: Double
+
+        public var filterRelease: Double
+
+        public var lfoRate: Double
+
+        public var lfoWaveform: LFO.Waveform
+
+        public var lfoPitchAmount: Double
+
+        public var lfoFilterAmount: Double
+
+        public var lfoPWMAmount: Double
+
+        public var lfoSyncMode: LFO.SyncMode
+
+        public var lfoTempoRate: LFO.BeatDivision
+
+        public var lfoRetrigger: LFO.RetriggerMode
+
+        public var lfoPhase: Double
+
+        public var lfoDelay: Double
+
+        public var pitchBendRange: Double
+
+        public var legatoMode: Bool
+
+        public var glideMode: Int32
+
+        public var glideTime: Double
+    }
+
+    public mutating func setSampleRate(_ sr: Any)
+
+    public mutating func setParameters(_ params: Any)
+
+    public func getParameters()
+
+    public mutating func noteOn(_ note: Any, _ velocity: Any)
+
+    public mutating func noteOff(_ note: Any = cxxDefaultArg)
+
+    public mutating func setPitchBend(_ semitones: Any)
+
+    public mutating func setTempo(_ bpm: Any)
+
+    public func isActive()
+
+    public func getCurrentNote()
+
+    public mutating func reset()
+
+    public mutating func process()
+}
+
+public enum FilterMode : Int32 {
+
+    case LOWPASS = 0
+
+    case HIGHPASS = 1
+
+    case BANDPASS = 2
+
+    case NOTCH = 3
+
+    case LP24 = 4
+
+    case LP18 = 5
+
+    case LP12 = 6
+
+    case LP6 = 7
+
+    case HP24 = 8
+
+    case HP12 = 9
+
+    case BP12 = 10
+
+    case BP6 = 11
+}
+
+public struct MoogLadderFilter {
+
+    public init(_ sampleRate: Any = cxxDefaultArg)
+
+    public mutating func setSampleRate(_ sr: Any)
+
+    public mutating func setCutoff(_ c: Any)
+
+    public func getCutoff()
+
+    public mutating func setResonance(_ r: Any)
+
+    public func getResonance()
+
+    public mutating func setMode(_ m: Any)
+
+    public func getMode()
+
+    public mutating func setPoles(_ p: Any)
+
+    public func getPoles()
+
+    public mutating func reset()
+
+    public mutating func process(_ input: Any)
+
+    public mutating func process(_ input: Any)
+
+    public mutating func processBlock(_ samples: Any, _ numSamples: Any)
+}
+
+public struct Oscillator {
+
+    public enum WaveformType : Int32 {
+
+        case SINE = 0
+
+        case SAW = 1
+
+        case SQUARE = 2
+
+        case TRIANGLE = 3
+
+        case NOISE = 4
+    }
+
+    public mutating func reset()
+
+    public mutating func sync()
+
+    public func didWrap()
+
+    public mutating func setFrequency(_ frequency: Any)
+
+    public func getFrequency()
+
+    public mutating func setSampleRate(_ sampleRate: Any)
+
+    public func getSampleRate()
+}
+
+public struct PolyBLEPOscillator {
+
+    public init(_ sampleRate: Any = cxxDefaultArg)
+
+    public mutating func setWaveform(_ waveform: Any)
+
+    public func getWaveform()
+
+    public mutating func setPulseWidth(_ pw: Any)
+
+    public func getPulseWidth()
+
+    public mutating func reset()
+
+    public mutating func process()
+
+    public typealias WaveformType = Oscillator.WaveformType.Type
+}
+
+public struct SinOscillator {
+
+    public init(_ sampleRate: Any = cxxDefaultArg)
+
+    public mutating func process()
+
+    public typealias WaveformType = Oscillator.WaveformType.Type
+}
+
+public struct StepSequencer {
+
+    public init(_ sampleRate: Any = cxxDefaultArg)
+
+    public mutating func reset()
+}
+
+public struct SyncablePhaseRamp {
+
+    public init(_ sampleRate: Any = cxxDefaultArg, _ rate: Any = cxxDefaultArg, _ phaseOffset: Any = cxxDefaultArg)
+
+    public struct ProcessResult {
+
+        public init()
+
+        public init(phase: Double, wrapped: Bool, cycleCount: Int32)
+
+        public var phase: Double
+
+        public var wrapped: Bool
+
+        public var cycleCount: Int32
+    }
+
+    public enum SyncMode : Int32 {
+
+        case FREE_RUN = 0
+
+        case BEAT_SYNC = 1
+    }
+
+    public enum BeatDivision : Int32 {
+
+        case FOUR_BARS = 0
+
+        case TWO_BARS = 1
+
+        case WHOLE = 2
+
+        case HALF_DOT = 3
+
+        case HALF = 4
+
+        case HALF_TRIPLET = 5
+
+        case QUARTER_DOT = 6
+
+        case QUARTER = 7
+
+        case QUARTER_TRIPLET = 8
+
+        case EIGHTH_DOT = 9
+
+        case EIGHTH = 10
+
+        case EIGHTH_TRIPLET = 11
+
+        case SIXTEENTH_DOT = 12
+
+        case SIXTEENTH = 13
+
+        case SIXTEENTH_TRIPLET = 14
+
+        case THIRTYSECOND = 15
+    }
+
+    public mutating func setSampleRate(_ sampleRate: Any)
+
+    public func getSampleRate()
+
+    public mutating func setRate(_ rateHz: Any)
+
+    public func getRate()
+
+    public mutating func setPhaseOffset(_ offset: Any)
+
+    public func getPhaseOffset()
+
+    public mutating func setSyncMode(_ mode: Any)
+
+    public func getSyncMode()
+
+    public mutating func setBeatDivision(_ division: Any)
+
+    public func getBeatDivision()
+
+    public mutating func setTempo(_ bpm: Any)
+
+    public func getTempo()
+
+    public mutating func reset()
+
+    public mutating func hardSync()
+
+    public func didWrap()
+
+    public func getCycleCount()
+
+    public func getSamplesPerCycle()
+
+    public func getEffectiveRate()
+
+    public mutating func setSwing(_ amount: Any)
+
+    public func getSwing()
+
+    public func getSwingDelaySamples()
+
+    public func isEvenStep()
+
+    public mutating func syncToBeatPosition(_ beatPosition: Any)
+
+    public mutating func process()
+
+    public func getCurrentPhase()
+}
+

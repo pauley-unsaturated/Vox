@@ -5,8 +5,10 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
-DERIVED_DATA="$PROJECT_DIR/build"
-APP_PATH="$DERIVED_DATA/Build/Products/Debug/Vox.app"
+# Use default DerivedData — required for macOS to register the AU component.
+# Custom -derivedDataPath won't register the extension with AudioComponentManager.
+DERIVED_DATA="$HOME/Library/Developer/Xcode/DerivedData"
+APP_PATH=""  # Will be discovered after build
 
 # Defaults
 OUTPUT="/tmp/vox-ui.png"
@@ -55,15 +57,19 @@ if $DO_BUILD; then
     echo "▸ Building Vox..."
     cd "$PROJECT_DIR"
     xcodebuild -project Vox.xcodeproj -scheme Vox -configuration Debug \
-        -derivedDataPath "$DERIVED_DATA" \
         build 2>&1 | grep -E "error:|warning:|BUILD|^\*\*" || true
-    
-    if [[ ! -d "$APP_PATH" ]]; then
-        echo "✗ Build failed — app not found at $APP_PATH"
-        exit 1
-    fi
     echo "✓ Build succeeded"
 fi
+
+# Discover the app path from DerivedData
+if [[ -z "$APP_PATH" ]]; then
+    APP_PATH=$(find "$DERIVED_DATA" -path "*/Vox-*/Build/Products/Debug/Vox.app" -maxdepth 5 2>/dev/null | head -1)
+fi
+if [[ -z "$APP_PATH" ]] || [[ ! -d "$APP_PATH" ]]; then
+    echo "✗ Could not find Vox.app in DerivedData"
+    exit 1
+fi
+echo "▸ App: $APP_PATH"
 
 # Step 2: Kill any existing Vox instance
 pkill -x Vox 2>/dev/null && sleep 1 || true
@@ -105,11 +111,11 @@ for w in list {
 if [[ -z "$WINDOW_ID" ]]; then
     echo "✗ Could not find Vox window. Is the app running?"
     echo "  Falling back to full-screen capture..."
-    /usr/sbin/screencapture -x "$OUTPUT"
+    /usr/sbin/screencapture -x "$OUTPUT" 2>/dev/null || screencapture -x "$OUTPUT"
 else
     echo "  Window ID: $WINDOW_ID"
-    # Step 8: Capture just the Vox window
-    /usr/sbin/screencapture -l "$WINDOW_ID" -o -x "$OUTPUT"
+    # Step 8: Capture just the Vox window (use full path — not always in PATH)
+    /usr/sbin/screencapture -l "$WINDOW_ID" -o -x "$OUTPUT" 2>/dev/null || screencapture -l "$WINDOW_ID" -o -x "$OUTPUT"
 fi
 
 echo "✓ Screenshot saved: $OUTPUT"

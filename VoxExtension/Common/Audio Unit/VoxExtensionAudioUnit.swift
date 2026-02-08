@@ -112,8 +112,10 @@ public class VoxExtensionAudioUnit: AUAudioUnit, @unchecked Sendable
     }
 
     public override func deallocateRenderResources() {
-        // Switch back to direct parameter setting when not rendering
-        setupParameterCallbacks()
+        // Clear callbacks with no-op closures — do NOT capture self (even weakly)
+        // because during dealloc, objc_initWeak crashes on a deallocating object.
+        parameterTree?.implementorValueObserver = { _, _ in }
+        parameterTree?.implementorValueProvider = { _ in 0.0 }
         
         kernel.deInitialize()
         
@@ -156,7 +158,7 @@ public class VoxExtensionAudioUnit: AUAudioUnit, @unchecked Sendable
         }
 
         parameterTree?.implementorValueProvider = { [weak self] param in
-            return self!.kernel.getParameter(param.address)
+            return self?.kernel.getParameter(param.address) ?? 0.0
         }
 
         parameterTree?.implementorStringFromValueCallback = { param, valuePtr in
