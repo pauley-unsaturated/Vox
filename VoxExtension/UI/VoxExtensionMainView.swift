@@ -97,8 +97,8 @@ struct TraditionalPanelView: View {
             // Main signal flow: horizontal scroll of sections
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(alignment: .top, spacing: 8) {
-                    PulsarOscillatorPanel(parameterTree: parameterTree)
-                    FormantFilterPanel(parameterTree: parameterTree)
+                    PulsarOscillatorPanel(parameterTree: parameterTree, audioUnit: audioUnit)
+                    FormantFilterPanel(parameterTree: parameterTree, audioUnit: audioUnit)
                     EnvelopesPanel(parameterTree: parameterTree)
                     ModulationPanel(parameterTree: parameterTree, audioUnit: audioUnit)
                     PerformancePanel(parameterTree: parameterTree)
@@ -158,23 +158,34 @@ struct PanelSection<Content: View>: View {
 
 struct PulsarOscillatorPanel: View {
     var parameterTree: ObservableAUParameterGroup?
+    var audioUnit: VoxExtensionAudioUnit?
 
     var body: some View {
         PanelSection(title: "OSCILLATOR", accentColor: .cyan) {
             VStack(spacing: 8) {
-                // Scope placeholder (wire up when scopeBuffer is exposed on AU)
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(Color(white: 0.05))
-                    .frame(width: 140, height: 70)
-                    .overlay(
-                        Text("SCOPE")
-                            .font(.system(size: 8, design: .monospaced))
-                            .foregroundColor(.cyan.opacity(0.4))
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 4)
-                            .stroke(Color.cyan.opacity(0.2), lineWidth: 1)
-                    )
+                // Live waveform scope
+                if #available(macOS 15.0, *), let au = audioUnit {
+                    ScopeView(buffer: au.scopeBuffer, preferredFPS: 30)
+                        .frame(width: 140, height: 70)
+                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 4)
+                                .stroke(Color.cyan.opacity(0.2), lineWidth: 1)
+                        )
+                } else {
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(Color(white: 0.05))
+                        .frame(width: 140, height: 70)
+                        .overlay(
+                            Text("SCOPE")
+                                .font(.system(size: 8, design: .monospaced))
+                                .foregroundColor(.cyan.opacity(0.4))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 4)
+                                .stroke(Color.cyan.opacity(0.2), lineWidth: 1)
+                        )
+                }
 
                 if let tree = parameterTree {
                     // Shape selector
@@ -201,23 +212,40 @@ struct PulsarOscillatorPanel: View {
 
 struct FormantFilterPanel: View {
     var parameterTree: ObservableAUParameterGroup?
+    var audioUnit: VoxExtensionAudioUnit?
 
     var body: some View {
         PanelSection(title: "FORMANT", accentColor: .orange) {
             VStack(spacing: 8) {
-                // Spectrum placeholder (wire up when scopeBuffer is exposed on AU)
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(Color(white: 0.05))
-                    .frame(width: 160, height: 60)
-                    .overlay(
-                        Text("SPECTRUM")
-                            .font(.system(size: 8, design: .monospaced))
-                            .foregroundColor(.orange.opacity(0.4))
+                // Live FFT spectrum with formant markers
+                if #available(macOS 15.0, *), let au = audioUnit {
+                    SpectrumView(
+                        buffer: au.spectrumBuffer,
+                        sampleRate: 44100,
+                        f1Frequency: parameterTree?.formantFilter.formant1Freq.value ?? 800,
+                        f2Frequency: parameterTree?.formantFilter.formant2Freq.value ?? 2400,
+                        preferredFPS: 30
                     )
+                    .frame(width: 160, height: 60)
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
                     .overlay(
                         RoundedRectangle(cornerRadius: 4)
                             .stroke(Color.orange.opacity(0.2), lineWidth: 1)
                     )
+                } else {
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(Color(white: 0.05))
+                        .frame(width: 160, height: 60)
+                        .overlay(
+                            Text("SPECTRUM")
+                                .font(.system(size: 8, design: .monospaced))
+                                .foregroundColor(.orange.opacity(0.4))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 4)
+                                .stroke(Color.orange.opacity(0.2), lineWidth: 1)
+                        )
+                }
 
                 if let tree = parameterTree {
                     // Vowel morph

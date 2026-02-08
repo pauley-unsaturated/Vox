@@ -749,6 +749,8 @@ struct ParameterSpaceNavigatorView: View {
     var audioUnit: VoxExtensionAudioUnit?
     
     @State private var state = NavigatorState()
+    @State private var chaosBuffer: AnyObject? = nil
+    @State private var chaosTimer: Timer? = nil
     
     var body: some View {
         VStack(spacing: 0) {
@@ -759,9 +761,16 @@ struct ParameterSpaceNavigatorView: View {
             HStack(spacing: 0) {
                 // Left: Primary navigator + secondary navigators
                 VStack(spacing: 8) {
-                    // Primary XY pad
-                    PrimaryNavigatorPad(state: state, parameterTree: parameterTree)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    // Primary XY pad with chaos attractor background
+                    ZStack {
+                        if #available(macOS 15.0, *), let buf = chaosBuffer as? AtomicScopeBuffer<ChaosPoint> {
+                            ChaosAttractorView(buffer: buf, preferredFPS: 30)
+                                .opacity(0.3)
+                                .allowsHitTesting(false)
+                        }
+                        PrimaryNavigatorPad(state: state, parameterTree: parameterTree)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                     
                     // Secondary navigators row
                     HStack(spacing: 8) {
@@ -796,6 +805,25 @@ struct ParameterSpaceNavigatorView: View {
                 
                 // Right sidebar
                 AxisConfigSidebar(state: state)
+            }
+        }
+        .onAppear { startChaosGenerator() }
+        .onDisappear { chaosTimer?.invalidate(); chaosTimer = nil }
+    }
+    
+    private func startChaosGenerator() {
+        guard #available(macOS 15.0, *) else { return }
+        let buf = AtomicScopeBuffer<ChaosPoint>(capacity: 4096)
+        chaosBuffer = buf
+        
+        let sigma: Double = 10.0, rho: Double = 28.0, beta: Double = 8.0 / 3.0, dt: Double = 0.005
+        nonisolated(unsafe) var lx: Double = 0.1, ly: Double = 0.0, lz: Double = 0.0
+        
+        chaosTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / 60.0, repeats: true) { _ in
+            for _ in 0..<64 {
+                let dx = sigma * (ly - lx), dy = lx * (rho - lz) - ly, dz = lx * ly - beta * lz
+                lx += dt * dx; ly += dt * dy; lz += dt * dz
+                buf.write(ChaosPoint(x: Float(lx / 25.0), y: Float(ly / 25.0), age: 0))
             }
         }
     }

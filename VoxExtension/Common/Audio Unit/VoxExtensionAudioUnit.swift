@@ -21,6 +21,14 @@ public class VoxExtensionAudioUnit: AUAudioUnit, @unchecked Sendable
     private var _outputBusses: AUAudioUnitBusArray!
     private var _inputBusses: AUAudioUnitBusArray!
 
+    // Public scope buffers for UI visualization (audio thread writes, display thread reads)
+    @available(macOS 15.0, *)
+    public var scopeBuffer: AtomicScopeBuffer<Float> { _scopeBuffer as! AtomicScopeBuffer<Float> }
+    @available(macOS 15.0, *)
+    public var spectrumBuffer: AtomicScopeBuffer<Float> { _spectrumBuffer as! AtomicScopeBuffer<Float> }
+    private let _scopeBuffer: AnyObject
+    private let _spectrumBuffer: AnyObject
+
     private var format: AVAudioFormat
 
     // Lazy parameter tree initialization flag
@@ -29,6 +37,13 @@ public class VoxExtensionAudioUnit: AUAudioUnit, @unchecked Sendable
     @objc override init(componentDescription: AudioComponentDescription, options: AudioComponentInstantiationOptions) throws {
         os_log(.info, log: auLog, "VoxExtensionAudioUnit init() called")
         self.format = AVAudioFormat(standardFormatWithSampleRate: 44_100, channels: 2)!
+        if #available(macOS 15.0, *) {
+            _scopeBuffer = AtomicScopeBuffer<Float>(capacity: 4096)
+            _spectrumBuffer = AtomicScopeBuffer<Float>(capacity: 4096)
+        } else {
+            _scopeBuffer = NSObject()
+            _spectrumBuffer = NSObject()
+        }
         try super.init(componentDescription: componentDescription, options: options)
         outputBus = try AUAudioUnitBus(format: self.format)
         outputBus?.maximumChannelCount = 2
@@ -77,7 +92,30 @@ public class VoxExtensionAudioUnit: AUAudioUnit, @unchecked Sendable
 
     // MARK: - Rendering
     public override var internalRenderBlock: AUInternalRenderBlock {
-        return processHelper!.internalRenderBlock()
+        let baseBlock = processHelper!.internalRenderBlock()!
+        
+        // Capture scope buffer pointers for the render block (no ObjC retain on audio thread)
+        if #available(macOS 15.0, *) {
+            let scope = self.scopeBuffer
+            let spectrum = self.spectrumBuffer
+            
+            return { actionFlags, timestamp, frameCount, outputBusNumber, outputData, realtimeEventListHead, pullInputBlock in
+                let status = baseBlock(actionFlags, timestamp, frameCount, outputBusNumber, outputData, realtimeEventListHead, pullInputBlock)
+                
+                guard status == noErr else { return status }
+                
+                // Copy first channel output into scope buffers (lock-free writes)
+                if let bufferData = outputData.pointee.mBuffers.mData {
+                    let floatPtr = bufferData.assumingMemoryBound(to: Float.self)
+                    scope.write(from: floatPtr, count: Int(frameCount))
+                    spectrum.write(from: floatPtr, count: Int(frameCount))
+                }
+                
+                return noErr
+            }
+        } else {
+            return baseBlock
+        }
     }
 
     public override func allocateRenderResources() throws {

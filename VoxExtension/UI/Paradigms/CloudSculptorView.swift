@@ -785,6 +785,11 @@ struct CloudSculptorView: View {
 
     @State private var engine = CloudSculptorEngine()
     @State private var selectedTool: SculptorTool = .magnet
+    
+    // Idle voice constellation data (subtle dim dots when no audio)
+    static let idleVoiceData: [VoiceConstellationPoint] = (0..<8).map { i in
+        VoiceConstellationPoint(pitch: 0, amplitude: 0.05, active: 0, voiceIndex: Float(i), pan: 0, detuneCents: 0)
+    }
     @State private var canvasSize: CGSize = .zero
     @State private var zoom: CGFloat = 1.0
     @State private var panOffset: CGSize = .zero
@@ -811,6 +816,20 @@ struct CloudSculptorView: View {
                         ToolOverlayView(engine: engine, canvasSize: geo.size)
                             .scaleEffect(zoom)
                             .offset(panOffset)
+
+                        // Voice constellation inset (bottom-right)
+                        if #available(macOS 15.0, *) {
+                            VoiceConstellationView(directData: Self.idleVoiceData)
+                                .frame(width: 80, height: 80)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color.cyan.opacity(0.2), lineWidth: 0.5)
+                                )
+                                .opacity(0.7)
+                                .position(x: geo.size.width - 50, y: geo.size.height - 50)
+                                .allowsHitTesting(false)
+                        }
 
                         // Lasso path for flock tool
                         if selectedTool == .flock && !lassoPoints.isEmpty {
