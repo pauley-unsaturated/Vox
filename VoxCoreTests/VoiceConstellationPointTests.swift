@@ -9,7 +9,6 @@ import Testing
 @testable import VoxExtension
 
 @Suite("Voice Constellation Point Tests")
-@available(macOS 15.0, *)
 struct VoiceConstellationPointTests {
 
     // MARK: - Data Structure Tests
