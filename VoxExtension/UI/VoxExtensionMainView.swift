@@ -622,7 +622,7 @@ struct VoxExtensionMainView: View {
                 case .cloud:
                     CloudSculptorView(parameterTree: parameterTree, audioUnit: audioUnit)
                 case .trajectory:
-                    TrajectoryPlaceholderView()
+                    TrajectoryComposerView(parameterTree: parameterTree, audioUnit: audioUnit)
                 case .conductor:
                     MacroConductorView(parameterTree: parameterTree, audioUnit: audioUnit)
                 }
