@@ -49,4 +49,4 @@ logs/
 *.log
 
 # Claude settings
-.claude/
+.claude/build-derived/

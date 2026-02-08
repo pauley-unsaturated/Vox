@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:audiokitpro.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(bd show:*)",
+      "Bash(bd create:*)",
+      "Bash(bd start:*)",
+      "Bash(bd update:*)",
+      "Bash(./build.sh:*)",
+      "Bash(./test.sh:*)",
+      "Bash(bd close:*)",
+      "Bash(find:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}
