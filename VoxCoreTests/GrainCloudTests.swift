@@ -156,9 +156,6 @@ struct GrainCloudTests {
     @Test("Concurrent write and drain does not crash")
     func concurrentAccess() async {
         let buffer = AtomicScopeBuffer<GrainPoint>(capacity: 1024)
-        let dest = UnsafeMutablePointer<GrainPoint>.allocate(capacity: 512)
-        defer { dest.deallocate() }
-
         await withTaskGroup(of: Void.self) { group in
             group.addTask {
                 for i in 0..<5000 {
@@ -171,9 +168,11 @@ struct GrainCloudTests {
                 }
             }
             group.addTask {
+                let localDest = UnsafeMutablePointer<GrainPoint>.allocate(capacity: 512)
+                defer { localDest.deallocate() }
                 var totalDrained = 0
                 for _ in 0..<100 {
-                    totalDrained += buffer.drainInto(dest, maxCount: 512)
+                    totalDrained += buffer.drainInto(localDest, maxCount: 512)
                     try? await Task.sleep(nanoseconds: 100_000)
                 }
                 #expect(totalDrained > 0)
