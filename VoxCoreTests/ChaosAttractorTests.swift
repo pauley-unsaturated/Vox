@@ -139,16 +139,17 @@ struct ChaosAttractorTests {
         }
         
         // Lorenz attractor is bounded: |x|,|y| < ~25, |z| < ~50
-        #expect(abs(lx) < 30)
-        #expect(abs(ly) < 30)
-        #expect(abs(lz) < 55)
+        let absX: Double = Swift.abs(lx)
+        let absY: Double = Swift.abs(ly)
+        let absZ: Double = Swift.abs(lz)
+        #expect(absX < 30)
+        #expect(absY < 30)
+        #expect(absZ < 55)
     }
     
     @Test("Concurrent write and drain does not crash")
     func concurrentAccess() async {
         let buffer = AtomicScopeBuffer<ChaosPoint>(capacity: 1024)
-        let dest = UnsafeMutablePointer<ChaosPoint>.allocate(capacity: 512)
-        defer { dest.deallocate() }
         
         // Writer task
         await withTaskGroup(of: Void.self) { group in
@@ -158,9 +159,11 @@ struct ChaosAttractorTests {
                 }
             }
             group.addTask {
+                let localDest = UnsafeMutablePointer<ChaosPoint>.allocate(capacity: 512)
+                defer { localDest.deallocate() }
                 var totalDrained = 0
                 for _ in 0..<100 {
-                    totalDrained += buffer.drainInto(dest, maxCount: 512)
+                    totalDrained += buffer.drainInto(localDest, maxCount: 512)
                     try? await Task.sleep(nanoseconds: 100_000)
                 }
                 // Should have drained some points
