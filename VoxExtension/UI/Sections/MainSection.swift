@@ -49,10 +49,11 @@ struct MainSection: View {
                 )
         )
         .onAppear {
-            // Level meter disabled - SwiftUI redraws are too expensive
-            // See backlog issue for Metal-backed implementation
-            // levelObserver = OutputLevelObserver(audioUnit: audioUnit)
-            // levelObserver?.startPolling()
+            // Phase 8.7: Enable level metering
+            // OutputLevelObserver polls at 30Hz but rate-limits SwiftUI updates to 15fps
+            // LevelMeter uses .drawingGroup() for Metal-backed rendering
+            levelObserver = OutputLevelObserver(audioUnit: audioUnit)
+            levelObserver?.startPolling()
         }
         .onDisappear {
             levelObserver?.stopPolling()
